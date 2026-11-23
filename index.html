@@ -1,0 +1,1677 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Spoločné úlohy</title>
+  <!-- Ikonka a nastavenia pre "Pridať na plochu" na telefóne -->
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/png" href="ikona-192.png">
+  <link rel="apple-touch-icon" href="ikona-192.png">
+  <meta name="theme-color" content="#e5484d">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ---------- FARBY NA JEDNOM MIESTE ---------- */
+    :root {
+      --cervena: #e5484d;        /* tvoja hlavná farba */
+      --tmava: #1f2933;
+      --seda-text: #6b7280;
+      --pozadie: #f3f4f6;
+      --stlpec: #e9eaee;
+      --biela: #ffffff;
+      --okraj: #e5e7eb;
+      --marek: #2b6cb0;
+      --vlado: #2f855a;
+      --tien: 0 1px 2px rgba(16,24,40,.06), 0 1px 3px rgba(16,24,40,.10);
+      --tien-hover: 0 4px 12px rgba(16,24,40,.14);
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: "Inter", Arial, sans-serif;
+      margin: 0;
+      background: var(--pozadie);
+      color: var(--tmava);
+    }
+    button, input, select, textarea { font-family: inherit; }
+
+    /* ---------- PRIHLÁSENIE ---------- */
+    #prihlasenie {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+    }
+    .prihlasenie-karta {
+      background: var(--biela);
+      border-radius: 18px;
+      box-shadow: var(--tien-hover);
+      padding: 36px 32px;
+      text-align: center;
+      max-width: 360px;
+      width: 100%;
+    }
+    .prihlasenie-karta h1 { font-size: 24px; margin: 14px 0 4px; }
+    .podnadpis { color: var(--seda-text); margin: 0 0 24px; }
+    .logo-ikona.velka { width: 56px; height: 56px; font-size: 28px; border-radius: 14px; margin: 0 auto; }
+    #prihlasit {
+      width: 100%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: var(--biela);
+      color: var(--tmava);
+      border: 1px solid var(--okraj);
+      box-shadow: var(--tien);
+    }
+    #prihlasit:hover { background: var(--pozadie); filter: none; }
+    #prihlasit .g { font-weight: 700; color: #4285f4; font-size: 18px; }
+    #prihlasenie-sprava { color: var(--seda-text); font-size: 14px; margin: 16px 0 0; }
+    #prihlasenie-sprava.chyba { color: #b91c1c; }
+    .ja { display: inline-flex; align-items: center; gap: 8px; }
+    .ja .autor { font-size: 13px; padding: 4px 10px; }
+    .odhlasit {
+      padding: 5px 10px;
+      font-size: 13px;
+      font-weight: 500;
+      background: none;
+      color: var(--seda-text);
+      border: 1px solid var(--okraj);
+      border-radius: 8px;
+    }
+    .odhlasit:hover { background: var(--pozadie); filter: none; }
+
+    /* ---------- HORNÁ LIŠTA ---------- */
+    header {
+      background: var(--biela);
+      border-bottom: 1px solid var(--okraj);
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+    .logo { display: flex; align-items: center; gap: 10px; }
+    .logo-ikona {
+      width: 34px; height: 34px;
+      border-radius: 9px;
+      background: var(--cervena);
+      color: white;
+      display: grid; place-items: center;
+      font-size: 18px;
+    }
+    h1 { font-size: 20px; margin: 0; color: var(--tmava); }
+    #stav { color: var(--seda-text); font-size: 12px; margin: 2px 0 0; }
+    .lista { display: flex; gap: 18px; flex-wrap: wrap; align-items: center; margin-left: auto; font-size: 14px; color: var(--seda-text); }
+
+    /* Prepínače (Kto som, filter) */
+    .hladanie input {
+      padding: 7px 12px;
+      font-size: 14px;
+      width: 200px;
+      border: 1px solid var(--okraj);
+      border-radius: 8px;
+      background: var(--pozadie);
+      outline: none;
+    }
+    .hladanie input:focus { background: var(--biela); border-color: var(--cervena); box-shadow: 0 0 0 3px rgba(229,72,77,.15); }
+    @media (max-width: 800px) { .hladanie, .hladanie input { width: 100%; } }
+    .kto select {
+      padding: 6px 10px;
+      font-size: 14px;
+      border: 1px solid var(--okraj);
+      border-radius: 8px;
+      background: var(--biela);
+      margin-left: 4px;
+    }
+    .segment { display: inline-flex; background: var(--pozadie); border-radius: 10px; padding: 3px; margin-left: 4px; }
+    .segment button {
+      border: none;
+      background: none;
+      padding: 6px 12px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--seda-text);
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .segment button.aktivny { background: var(--biela); color: var(--tmava); box-shadow: var(--tien); }
+
+    main { max-width: 1200px; margin: 0 auto; padding: 20px 24px 40px; }
+
+    /* ---------- PANEL NA PRIDÁVANIE ---------- */
+    .panel {
+      background: var(--biela);
+      border-radius: 14px;
+      box-shadow: var(--tien);
+      padding: 14px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .panel input[type="text"] {
+      flex: 1;
+      min-width: 200px;
+      padding: 11px 14px;
+      font-size: 15px;
+      border: 1px solid var(--okraj);
+      border-radius: 10px;
+      outline: none;
+    }
+    .panel input[type="text"]:focus { border-color: var(--cervena); box-shadow: 0 0 0 3px rgba(229,72,77,.15); }
+    .panel select, .panel input[type="date"] {
+      padding: 10px;
+      font-size: 14px;
+      border: 1px solid var(--okraj);
+      border-radius: 10px;
+      background: var(--biela);
+    }
+    button {
+      padding: 11px 18px;
+      font-size: 15px;
+      font-weight: 600;
+      background: var(--cervena);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: filter .15s, background .15s;
+    }
+    button:hover { filter: brightness(0.95); }
+    button:disabled { opacity: 0.5; cursor: default; }
+    .svetle { background: var(--pozadie); color: var(--tmava); font-weight: 500; }
+
+    /* ---------- NÁLADA + POČÍTADLO ---------- */
+    .riadok-info { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin: 18px 0 14px; }
+    .nalady { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: 14px; color: var(--seda-text); }
+    .nalady button {
+      padding: 7px 13px;
+      font-size: 13px;
+      font-weight: 500;
+      background: var(--biela);
+      color: var(--tmava);
+      border: 1px solid var(--okraj);
+      border-radius: 999px;
+    }
+    .nalady button:hover { border-color: var(--cervena); filter: none; }
+    #odporucanie {
+      margin: -4px 0 14px;
+      padding: 10px 14px;
+      background: #fff7e0;
+      border: 1px solid #f6d77a;
+      border-radius: 10px;
+      font-size: 14px;
+      display: none;
+    }
+    #pocitadlo { font-weight: 600; font-size: 14px; margin: 0; }
+    .ukazovatel { width: 160px; height: 8px; background: var(--okraj); border-radius: 99px; overflow: hidden; display: inline-block; vertical-align: middle; margin-left: 10px; }
+    .ukazovatel span { display: block; width: 0; height: 100%; background: var(--vlado); border-radius: 99px; transition: width .3s; }
+
+    /* ---------- TABUĽA ---------- */
+    .tabula {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      align-items: start;
+    }
+    @media (max-width: 800px) {
+      .tabula { grid-template-columns: 1fr; }
+      header { padding: 12px 16px; }
+      main { padding: 16px; }
+      .lista { margin-left: 0; }
+    }
+    .stlpec {
+      background: var(--stlpec);
+      border-radius: 14px;
+      padding: 12px;
+      min-width: 0;
+      border-top: 4px solid #9ca3af;
+      transition: outline .1s;
+    }
+    .stlpec.s-urobit { border-top-color: #9ca3af; }
+    .stlpec.s-robi { border-top-color: #f59e0b; }
+    .stlpec.s-hotovo { border-top-color: var(--vlado); }
+    .stlpec h3 {
+      margin: 2px 4px 12px;
+      font-size: 14px;
+      font-weight: 600;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      text-transform: uppercase;
+      letter-spacing: .03em;
+      color: #374151;
+    }
+    .stlpec .pocet {
+      background: var(--biela);
+      color: var(--seda-text);
+      font-size: 12px;
+      padding: 2px 9px;
+      border-radius: 999px;
+    }
+    .stlpec.nad { outline: 2px dashed var(--cervena); outline-offset: 2px; background: #f7e6e7; }
+    .stlpec ul { list-style: none; padding: 0; margin: 0; min-height: 60px; }
+    .prazdny {
+      color: #9ca3af;
+      font-size: 13px;
+      padding: 18px 8px;
+      text-align: center;
+      border: 2px dashed #d1d5db;
+      border-radius: 10px;
+    }
+
+    /* ---------- KARTA ---------- */
+    .karta {
+      background: var(--biela);
+      border-radius: 10px;
+      margin: 0 0 10px;
+      padding: 12px;
+      box-shadow: var(--tien);
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: box-shadow .15s, transform .15s;
+    }
+    .karta:hover { box-shadow: var(--tien-hover); transform: translateY(-1px); }
+    .karta[draggable="true"] { cursor: grab; }
+    .karta.tahana { opacity: 0.4; }
+    .karta.odporucana { border-color: #f0b400; box-shadow: 0 0 0 4px rgba(240,180,0,.2); }
+    .karta.hotova .nazov { text-decoration: line-through; color: #9ca3af; }
+
+    .hore { display: flex; align-items: flex-start; gap: 6px; }
+    .nazov { flex: 1; overflow-wrap: anywhere; font-size: 15px; font-weight: 500; line-height: 1.35; }
+    .zmazat {
+      background: none;
+      color: #9ca3af;
+      padding: 0 4px;
+      font-size: 20px;
+      line-height: 1;
+      font-weight: 400;
+      opacity: 0;
+      transition: opacity .15s, color .15s;
+    }
+    .karta:hover .zmazat { opacity: 1; }
+    .zmazat:hover { color: #c53030; filter: none; }
+    @media (hover: none) { .zmazat { opacity: 1; } }
+
+    .stitky { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
+    .autor, .termin {
+      display: inline-flex;
+      align-items: center;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 3px 9px;
+      border-radius: 999px;
+    }
+    .autor { font-weight: 600; color: white; background: #6b7280; }
+    .autor.marek { background: var(--marek); }
+    .autor.vlado { background: var(--vlado); }
+    .termin { background: var(--pozadie); color: #374151; }
+    .termin.blizko { background: #fef3c7; color: #92400e; }
+    .termin.dnes { background: #fed7aa; color: #9a3412; font-weight: 600; }
+    .termin.po-termine { background: #fee2e2; color: #b91c1c; font-weight: 600; }
+    .karta.hotova .autor, .karta.hotova .termin { opacity: 0.5; }
+    .karta.hotova .termin { background: var(--pozadie); color: #9ca3af; font-weight: 500; }
+    .ma-popis { font-size: 13px; opacity: .7; }
+    .vezmem {
+      padding: 2px 9px;
+      font-size: 12px;
+      font-weight: 500;
+      background: var(--biela);
+      color: var(--seda-text);
+      border: 1px dashed #c4c7cf;
+      border-radius: 999px;
+    }
+    .vezmem:hover { border-color: var(--cervena); color: var(--cervena); filter: none; }
+
+    /* Šípky na presun */
+    .presun { display: flex; justify-content: space-between; margin-top: 10px; }
+    .presun button {
+      padding: 3px 9px;
+      font-size: 12px;
+      font-weight: 500;
+      background: none;
+      color: var(--seda-text);
+      border: 1px solid var(--okraj);
+      border-radius: 6px;
+    }
+    .presun button:hover { background: var(--pozadie); filter: none; color: var(--tmava); }
+    .presun .medzera { flex: 1; }
+
+    /* Rozkliknutá karta */
+    .detail { margin-top: 12px; border-top: 1px solid var(--okraj); padding-top: 12px; cursor: default; }
+    .detail .pole-riadok { margin-bottom: 10px; font-size: 13px; color: var(--seda-text); display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .detail .pole-riadok > span:first-child { width: 80px; font-weight: 500; }
+    .detail select, .detail input[type="date"] {
+      padding: 5px 8px;
+      font-size: 13px;
+      border: 1px solid var(--okraj);
+      border-radius: 8px;
+      background: var(--biela);
+    }
+    .detail .male { padding: 6px 12px; font-size: 13px; }
+    .detail input.nazov-pole {
+      flex: 1;
+      min-width: 140px;
+      padding: 6px 10px;
+      font-size: 14px;
+      font-weight: 500;
+      border: 1px solid var(--okraj);
+      border-radius: 8px;
+      outline: none;
+    }
+    .detail input.nazov-pole:focus { border-color: var(--cervena); box-shadow: 0 0 0 3px rgba(229,72,77,.15); }
+    .detail textarea {
+      width: 100%;
+      min-height: 100px;
+      padding: 10px;
+      font-size: 14px;
+      line-height: 1.45;
+      border: 1px solid var(--okraj);
+      border-radius: 10px;
+      resize: vertical;
+      outline: none;
+    }
+    .detail textarea:focus { border-color: var(--cervena); box-shadow: 0 0 0 3px rgba(229,72,77,.15); }
+    .detail .tlacidla { margin-top: 8px; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+    .detail .info { color: var(--seda-text); font-size: 12px; }
+
+    /* NOVÉ: novinky */
+    .karta.nova { border-color: rgba(229,72,77,.35); }
+    .bodka {
+      width: 9px; height: 9px;
+      border-radius: 50%;
+      background: var(--cervena);
+      margin-top: 6px;
+      flex-shrink: 0;
+      box-shadow: 0 0 0 3px rgba(229,72,77,.2);
+    }
+    .vpravo { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+    #novinky { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+    .novinky-text { font-weight: 600; color: #b91c1c; }
+    .novinky-ok {
+      padding: 4px 10px;
+      font-size: 12px;
+      font-weight: 500;
+      background: var(--biela);
+      color: var(--tmava);
+      border: 1px solid var(--okraj);
+      border-radius: 999px;
+    }
+
+    /* NOVÉ: kontrolný zoznam */
+    .postup { font-size: 12px; font-weight: 500; color: var(--seda-text); background: var(--pozadie); padding: 3px 8px; border-radius: 999px; }
+    .postup.kompletny { background: #dcfce7; color: #166534; }
+    .kontrolny { margin-top: 16px; border-top: 1px solid var(--okraj); padding-top: 12px; }
+    .pasik { height: 6px; background: var(--okraj); border-radius: 99px; overflow: hidden; margin-bottom: 8px; }
+    .pasik div { height: 100%; background: var(--vlado); transition: width .3s; }
+    .krok {
+      display: flex; align-items: center; gap: 8px;
+      padding: 5px 4px;
+      border-radius: 6px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .krok:hover { background: var(--pozadie); }
+    .krok input { width: 16px; height: 16px; flex-shrink: 0; cursor: pointer; }
+    .krok span { flex: 1; overflow-wrap: anywhere; }
+    .krok.hotovy span { text-decoration: line-through; color: #9ca3af; }
+    .krok-zmaz { background: none; color: #9ca3af; padding: 0 4px; font-size: 16px; font-weight: 400; opacity: 0; }
+    .krok:hover .krok-zmaz { opacity: 1; }
+    .krok-zmaz:hover { color: #c53030; filter: none; }
+    @media (hover: none) { .krok-zmaz { opacity: 1; } }
+    .detail input.krok-pole {
+      width: 100%;
+      margin-top: 4px;
+      padding: 7px 10px;
+      font-size: 14px;
+      border: 1px dashed #c4c7cf;
+      border-radius: 8px;
+      outline: none;
+    }
+    .detail input.krok-pole:focus { border: 1px solid var(--cervena); box-shadow: 0 0 0 3px rgba(229,72,77,.15); }
+
+    /* Komentáre */
+    .komentare { margin-top: 16px; border-top: 1px solid var(--okraj); padding-top: 12px; }
+    .kom-nadpis { font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 8px; }
+    .komentar { background: var(--pozadie); border-radius: 10px; padding: 8px 10px; margin-bottom: 8px; }
+    .kom-hlava { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+    .kom-cas { font-size: 12px; color: var(--seda-text); }
+    .kom-zmaz {
+      margin-left: auto;
+      background: none;
+      color: var(--seda-text);
+      font-size: 12px;
+      font-weight: 500;
+      padding: 0;
+    }
+    .kom-zmaz:hover { color: #c53030; filter: none; }
+    .kom-text { font-size: 14px; line-height: 1.45; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .detail textarea.kom-pole { min-height: 56px; margin-bottom: 6px; }
+  </style>
+</head>
+
+<body>
+  <!-- NOVÉ: úvodná obrazovka s prihlásením -->
+  <div id="prihlasenie">
+    <div class="prihlasenie-karta">
+      <div class="logo-ikona velka">✓</div>
+      <h1>Spoločné úlohy</h1>
+      <p class="podnadpis">Tabuľa úloh pre Mareka a Vlada</p>
+      <button id="prihlasit" style="display:none">
+        <span class="g">G</span> Prihlásiť sa cez Google
+      </button>
+      <p id="prihlasenie-sprava">Načítavam…</p>
+    </div>
+  </div>
+
+  <div id="aplikacia" style="display:none">
+  <header>
+    <div class="logo">
+      <div class="logo-ikona">✓</div>
+      <div>
+        <h1>Spoločné úlohy</h1>
+        <p id="stav">Načítavam tabuľu…</p>
+      </div>
+    </div>
+
+    <div class="lista">
+      <!-- NOVÉ: vyhľadávanie -->
+      <span class="hladanie">
+        <input type="search" id="hladat" placeholder="🔍 Hľadať karty…" autocomplete="off">
+      </span>
+      <!-- Kto je prihlásený (nastaví sa automaticky podľa Google účtu) -->
+      <span class="ja">
+        <span id="meno" class="autor"></span>
+        <button id="odhlasit" class="odhlasit">Odhlásiť</button>
+      </span>
+      <span>
+        Ukáž:
+        <span class="segment filter">
+          <button data-filter="vsetci" class="aktivny">Všetky</button>
+          <button data-filter="Marek">Marek</button>
+          <button data-filter="Vlado">Vlado</button>
+        </span>
+      </span>
+    </div>
+  </header>
+
+  <main>
+    <div class="panel">
+      <input type="text" id="novaUloha" placeholder="Nová karta: čo treba urobiť?">
+      <select id="energia" title="Náročnosť">
+        <option value="nizka">😴 Ľahká</option>
+        <option value="stredna" selected>🙂 Stredná</option>
+        <option value="vysoka">💪 Náročná</option>
+      </select>
+      <input type="date" id="termin" title="Termín (nepovinné)">
+      <button id="pridat" onclick="pridajUlohu()">+ Pridať</button>
+    </div>
+
+    <div class="riadok-info">
+      <div class="nalady">
+        Ako sa cítiš?
+        <button onclick="odporuc('nizka')">😴 Unavený</button>
+        <button onclick="odporuc('stredna')">🙂 V pohode</button>
+        <button onclick="odporuc('vysoka')">💪 Nabitý</button>
+      </div>
+      <div class="vpravo">
+        <span id="novinky"></span>
+        <span id="pocitadlo"></span><span class="ukazovatel"><span id="ukazovatel"></span></span>
+      </div>
+    </div>
+    <div id="odporucanie"></div>
+
+    <!-- Tabuľa s tromi stĺpcami. Karty doň kreslí JavaScript. -->
+    <div class="tabula" id="tabula"></div>
+  </main>
+  </div>
+
+  <script>
+    // ---------- NASTAVENIA ----------
+    let ikonky = { nizka: "😴", stredna: "🙂", vysoka: "💪" };
+
+    // NOVÉ: stĺpce tabule. "id" sa ukladá do databázy, "nazov" vidíš na stránke.
+    let stlpce = [
+      { id: "urobit", nazov: "📋 Na urobenie" },
+      { id: "robi",   nazov: "🔨 Robí sa" },
+      { id: "hotovo", nazov: "✅ Hotovo" }
+    ];
+
+    let db = null;
+    let ulohy = [];
+    let odporucanaId = null;
+    let filter = "vsetci";
+    let hladat = "";   // NOVÉ: text vo vyhľadávaní
+    let rozbalene = new Set();
+    let rozpisane = {};
+    // NOVÉ: komentáre všetkých kariet a rozpísané (neodoslané) komentáre
+    let komentare = [];
+    let rozpisaneKomentare = {};
+    // NOVÉ: rozpísané (ešte neuložené) nové názvy kariet
+    let rozpisaneNazvy = {};
+    let kreslim = false;
+    // NOVÉ: kroky kontrolných zoznamov všetkých kariet
+    let kroky = [];
+    let noveKroky = {};          // rozpísaný nový krok pre každú kartu
+    // NOVÉ: kedy si naposledy videl ktorú kartu (ukladá sa pre Mareka a Vlada zvlášť)
+    let videne = null;           // { zaklad: čas, karty: { idKarty: čas } }
+    let zrusVidene = null;
+
+    // ---------- KTO SOM + FILTER ----------
+    // Kto je prihlásený. Meno sa nastaví po prihlásení cez Google
+    // (pozri časť FIREBASE úplne dole).
+    let vyberKto = { value: "" };
+
+    for (let tlacidlo of document.querySelectorAll(".filter button")) {
+      tlacidlo.onclick = function () {
+        filter = tlacidlo.dataset.filter;
+        for (let t of document.querySelectorAll(".filter button")) {
+          t.classList.toggle("aktivny", t === tlacidlo);
+        }
+        vykresli();
+      };
+    }
+
+    // NOVÉ: vyhľadávanie sa prepočíta pri každom napísanom písmene
+    let poleHladat = document.getElementById("hladat");
+    poleHladat.addEventListener("input", function () {
+      hladat = bezDiakritiky(poleHladat.value.trim());
+      vykresli();
+    });
+    poleHladat.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") {
+        poleHladat.value = "";
+        hladat = "";
+        vykresli();
+      }
+    });
+
+    // "Čerešňa" -> "ceresna", aby sa dalo hľadať aj bez mäkčeňov a dĺžňov
+    function bezDiakritiky(text) {
+      return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    }
+
+    // Obsahuje karta hľadaný text? Pozrieme názov, popis, kroky aj komentáre.
+    function zodpovedaHladaniu(uloha) {
+      if (hladat === "") return true;
+      let vsetkyTexty = [uloha.text, uloha.popis];
+      for (let k of krokyKarty(uloha.id)) vsetkyTexty.push(k.text);
+      for (let k of komentareKarty(uloha.id)) vsetkyTexty.push(k.text);
+      return bezDiakritiky(vsetkyTexty.join(" ")).includes(hladat);
+    }
+
+    document.getElementById("novaUloha").addEventListener("keydown", function (e) {
+      if (e.key === "Enter") pridajUlohu();
+    });
+
+    // ---------- KRESLENIE TABULE ----------
+    function vykresli() {
+      // Ak práve píšeš do popisu, zapamätáme si, kde máš kurzor
+      let aktivny = document.activeElement;
+      let aktivneId = (aktivny && aktivny.dataset && aktivny.dataset.fokus) || null;
+      let kurzor = aktivneId ? [aktivny.selectionStart, aktivny.selectionEnd] : null;
+
+      let tabula = document.getElementById("tabula");
+      kreslim = true;          // počas prekresľovania ignoruj "opustenie" polí
+      tabula.innerHTML = "";
+
+      // Filter: ukáž len karty, ktoré rieši vybraný človek
+      let viditelne = ulohy.filter(function (u) {
+        return (filter === "vsetci" || u.riesi === filter) && zodpovedaHladaniu(u);
+      });
+
+      // Zoradenie podľa termínu: najbližší hore, bez termínu dole
+      viditelne.sort(function (a, b) {
+        if (a.termin && !b.termin) return -1;
+        if (!a.termin && b.termin) return 1;
+        if (a.termin < b.termin) return -1;
+        if (a.termin > b.termin) return 1;
+        return 0;
+      });
+
+      for (let i = 0; i < stlpce.length; i++) {
+        let stlpec = stlpce[i];
+        let karty = viditelne.filter(function (u) { return u.stav === stlpec.id; });
+
+        let div = document.createElement("div");
+        div.className = "stlpec s-" + stlpec.id;
+
+        let nadpis = document.createElement("h3");
+        nadpis.textContent = stlpec.nazov;
+        let pocet = document.createElement("span");
+        pocet.className = "pocet";
+        pocet.textContent = karty.length;
+        nadpis.appendChild(pocet);
+        div.appendChild(nadpis);
+
+        let ul = document.createElement("ul");
+        for (let uloha of karty) {
+          ul.appendChild(vytvorKartu(uloha, i));
+        }
+        if (karty.length === 0) {
+          let prazdny = document.createElement("li");
+          prazdny.className = "prazdny";
+          prazdny.textContent = hladat ? "Nič sa nenašlo" : "Zatiaľ prázdne – sem pretiahni kartu";
+          ul.appendChild(prazdny);
+        }
+        div.appendChild(ul);
+
+        // NOVÉ: ťahanie kariet myšou (drag & drop)
+        div.ondragover = function (e) {
+          e.preventDefault();          // povolí "pustenie" karty sem
+          div.classList.add("nad");
+        };
+        div.ondragleave = function () {
+          div.classList.remove("nad");
+        };
+        div.ondrop = function (e) {
+          e.preventDefault();
+          div.classList.remove("nad");
+          let id = e.dataTransfer.getData("text/plain");
+          presun(id, stlpec.id);
+        };
+
+        tabula.appendChild(div);
+      }
+
+      // Vrátime kurzor tam, kde si práve písal
+      if (aktivneId) {
+        let pole = tabula.querySelector('[data-fokus="' + aktivneId + '"]');
+        if (pole) {
+          pole.focus();
+          pole.setSelectionRange(kurzor[0], kurzor[1]);
+        }
+      }
+
+      kreslim = false;
+      aktualizujPocitadlo();
+      aktualizujNovinky();
+    }
+
+    // Vyrobí jednu kartu. "poradie" = v ktorom stĺpci je (0, 1 alebo 2).
+    function vytvorKartu(uloha, poradie) {
+      let karta = document.createElement("li");
+      karta.className = "karta";
+      if (uloha.stav === "hotovo") karta.classList.add("hotova");
+      if (uloha.id === odporucanaId) karta.classList.add("odporucana");
+
+      let jeRozbalena = rozbalene.has(uloha.id);
+
+      // Rozbalenú kartu sa ťahať nedá, aby sa dalo pohodlne písať
+      karta.draggable = !jeRozbalena;
+      karta.ondragstart = function (e) {
+        e.dataTransfer.setData("text/plain", uloha.id);
+        karta.classList.add("tahana");
+      };
+      karta.ondragend = function () {
+        karta.classList.remove("tahana");
+      };
+
+      // --- Názov a krížik ---
+      let hore = document.createElement("div");
+      hore.className = "hore";
+      // NOVÉ: červená bodka, ak ten druhý na karte niečo zmenil
+      if (jeNovinka(uloha)) {
+        karta.classList.add("nova");
+        let bodka = document.createElement("span");
+        bodka.className = "bodka";
+        bodka.title = uloha.zmenil + " tu niečo zmenil";
+        hore.appendChild(bodka);
+      }
+      let nazov = document.createElement("span");
+      nazov.className = "nazov";
+      nazov.textContent = (ikonky[uloha.energia] || "🙂") + " " + uloha.text;
+      hore.appendChild(nazov);
+
+      let zmazat = document.createElement("button");
+      zmazat.textContent = "×";
+      zmazat.className = "zmazat";
+      zmazat.title = "Zmazať kartu";
+      zmazat.onclick = function (e) {
+        e.stopPropagation();
+        zmazUlohu(uloha);
+      };
+      hore.appendChild(zmazat);
+      karta.appendChild(hore);
+
+      // --- Štítky: kto rieši, termín, popis ---
+      let stitky = document.createElement("div");
+      stitky.className = "stitky";
+      if (uloha.riesi) {
+        let autor = document.createElement("span");
+        autor.className = "autor " + uloha.riesi.toLowerCase();
+        autor.textContent = uloha.riesi;
+        autor.title = "Na starosti: " + uloha.riesi;
+        stitky.appendChild(autor);
+      }
+      // NOVÉ: karta bez zodpovedného človeka má tlačidlo "Vezmem si to"
+      if (!uloha.riesi && uloha.stav !== "hotovo") {
+        let vezmem = document.createElement("button");
+        vezmem.className = "vezmem";
+        vezmem.textContent = "🙋 Vezmem si to";
+        vezmem.title = "Kartu budeš mať na starosti ty (" + vyberKto.value + ")";
+        vezmem.onclick = function (e) {
+          e.stopPropagation();
+          zmenUlohu(uloha, { riesi: vyberKto.value });
+        };
+        stitky.appendChild(vezmem);
+      }
+      if (uloha.termin) {
+        let t = popisTerminu(uloha.termin);
+        let terminStitok = document.createElement("span");
+        terminStitok.className = "termin " + t.trieda;
+        terminStitok.textContent = "📅 " + t.text;
+        stitky.appendChild(terminStitok);
+      }
+      if (uloha.popis) {
+        let ikonaPopisu = document.createElement("span");
+        ikonaPopisu.className = "ma-popis";
+        ikonaPopisu.textContent = "📝";
+        ikonaPopisu.title = "Karta má popis";
+        stitky.appendChild(ikonaPopisu);
+      }
+      // NOVÉ: postup kontrolného zoznamu, napr. ☑ 2/5
+      let mojeKroky = krokyKarty(uloha.id);
+      if (mojeKroky.length > 0) {
+        let hotoveKroky = mojeKroky.filter(function (k) { return k.hotovo; }).length;
+        let postup = document.createElement("span");
+        postup.className = "postup" + (hotoveKroky === mojeKroky.length ? " kompletny" : "");
+        postup.textContent = "☑ " + hotoveKroky + "/" + mojeKroky.length;
+        postup.title = "Kontrolný zoznam";
+        stitky.appendChild(postup);
+      }
+
+      // Počet komentárov
+      let pocetKom = komentareKarty(uloha.id).length;
+      if (pocetKom > 0) {
+        let ikonaKom = document.createElement("span");
+        ikonaKom.className = "ma-popis";
+        ikonaKom.textContent = "💬 " + pocetKom;
+        ikonaKom.title = "Počet komentárov";
+        stitky.appendChild(ikonaKom);
+      }
+      if (stitky.childNodes.length > 0) karta.appendChild(stitky);
+
+      // --- Šípky na presun do vedľajšieho stĺpca ---
+      let presunDiv = document.createElement("div");
+      presunDiv.className = "presun";
+      if (poradie > 0) {
+        let vlavo = document.createElement("button");
+        vlavo.textContent = "◀ " + stlpce[poradie - 1].nazov.split(" ").slice(1).join(" ");
+        vlavo.onclick = function (e) {
+          e.stopPropagation();
+          presun(uloha.id, stlpce[poradie - 1].id);
+        };
+        presunDiv.appendChild(vlavo);
+      }
+      let medzera = document.createElement("span");
+      medzera.className = "medzera";
+      presunDiv.appendChild(medzera);
+      if (poradie < stlpce.length - 1) {
+        let vpravo = document.createElement("button");
+        vpravo.textContent = stlpce[poradie + 1].nazov.split(" ").slice(1).join(" ") + " ▶";
+        vpravo.onclick = function (e) {
+          e.stopPropagation();
+          presun(uloha.id, stlpce[poradie + 1].id);
+        };
+        presunDiv.appendChild(vpravo);
+      }
+      karta.appendChild(presunDiv);
+
+      // Klik na kartu ju rozbalí alebo zbalí
+      karta.onclick = function () {
+        oznacVidene(uloha.id);   // NOVÉ: otvorením kartu "vidíš"
+        if (rozbalene.has(uloha.id)) {
+          rozbalene.delete(uloha.id);
+        } else {
+          rozbalene.add(uloha.id);
+        }
+        vykresli();
+      };
+
+      if (jeRozbalena) {
+        karta.appendChild(vytvorDetail(uloha));
+      }
+      return karta;
+    }
+
+    // Rozbalená časť karty: termín, kto rieši, popis
+    function vytvorDetail(uloha) {
+      let detail = document.createElement("div");
+      detail.className = "detail";
+      detail.onclick = function (e) {
+        e.stopPropagation();   // klikanie vnútri karty ju nezbalí
+      };
+
+      // NOVÉ: zmena názvu karty
+      let nazovRiadok = document.createElement("div");
+      nazovRiadok.className = "pole-riadok";
+      nazovRiadok.appendChild(stitok("Názov"));
+      let nazovPole = document.createElement("input");
+      nazovPole.type = "text";
+      nazovPole.className = "nazov-pole";
+      nazovPole.dataset.fokus = "nazov-" + uloha.id;
+      nazovPole.value = (uloha.id in rozpisaneNazvy) ? rozpisaneNazvy[uloha.id] : uloha.text;
+      nazovPole.oninput = function () {
+        rozpisaneNazvy[uloha.id] = nazovPole.value;
+      };
+      // Uloží sa po stlačení Enter alebo keď klikneš inam
+      nazovPole.onkeydown = function (e) {
+        if (e.key === "Enter") nazovPole.blur();
+        if (e.key === "Escape") {
+          delete rozpisaneNazvy[uloha.id];
+          nazovPole.value = uloha.text;
+          nazovPole.blur();
+        }
+      };
+      nazovPole.onblur = function () {
+        if (kreslim) return;   // pole zmizlo kvôli prekresleniu, nie kvôli tebe
+        ulozNazov(uloha, nazovPole.value);
+      };
+      nazovRiadok.appendChild(nazovPole);
+      detail.appendChild(nazovRiadok);
+
+      // Termín
+      let terminRiadok = document.createElement("div");
+      terminRiadok.className = "pole-riadok";
+      terminRiadok.appendChild(stitok("Termín"));
+      let terminPole = document.createElement("input");
+      terminPole.type = "date";
+      terminPole.value = uloha.termin;
+      terminPole.onchange = function () {
+        zmenUlohu(uloha, { termin: terminPole.value });
+      };
+      terminRiadok.appendChild(terminPole);
+      if (uloha.termin) {
+        let bezTerminu = document.createElement("button");
+        bezTerminu.textContent = "Bez termínu";
+        bezTerminu.className = "svetle male";
+        bezTerminu.onclick = function () {
+          zmenUlohu(uloha, { termin: "" });
+        };
+        terminRiadok.appendChild(bezTerminu);
+      }
+      detail.appendChild(terminRiadok);
+
+      // NOVÉ: kto kartu rieši
+      let riesiRiadok = document.createElement("div");
+      riesiRiadok.className = "pole-riadok";
+      riesiRiadok.appendChild(stitok("Na starosti"));
+      let riesiPole = document.createElement("select");
+      for (let moznost of [["", "zatiaľ nikto"], ["Marek", "Marek"], ["Vlado", "Vlado"]]) {
+        let o = document.createElement("option");
+        o.value = moznost[0];
+        o.textContent = moznost[1];
+        riesiPole.appendChild(o);
+      }
+      riesiPole.value = uloha.riesi;
+      riesiPole.onchange = function () {
+        zmenUlohu(uloha, { riesi: riesiPole.value });
+      };
+      riesiRiadok.appendChild(riesiPole);
+      if (uloha.autor) {
+        let pridal = document.createElement("span");
+        pridal.className = "info";
+        pridal.textContent = "(kartu pridal " + uloha.autor + ")";
+        riesiRiadok.appendChild(pridal);
+      }
+      detail.appendChild(riesiRiadok);
+
+      // Popis
+      let pole = document.createElement("textarea");
+      pole.placeholder = "Sem napíš podrobnosti ku karte…";
+      pole.dataset.fokus = "popis-" + uloha.id;
+      pole.value = (uloha.id in rozpisane) ? rozpisane[uloha.id] : uloha.popis;
+      pole.oninput = function () {
+        rozpisane[uloha.id] = pole.value;
+        info.textContent = "Neuložené zmeny";
+      };
+      detail.appendChild(pole);
+
+      let tlacidla = document.createElement("div");
+      tlacidla.className = "tlacidla";
+      let ulozit = document.createElement("button");
+      ulozit.textContent = "Uložiť popis";
+      ulozit.className = "male";
+      ulozit.onclick = async function () {
+        let ok = await zmenUlohu(uloha, { popis: pole.value });
+        if (ok) {
+          delete rozpisane[uloha.id];
+          vykresli();
+        }
+      };
+      tlacidla.appendChild(ulozit);
+
+      let zrusit = document.createElement("button");
+      zrusit.textContent = "Zrušiť";
+      zrusit.className = "svetle male";
+      zrusit.onclick = function () {
+        delete rozpisane[uloha.id];
+        vykresli();
+      };
+      tlacidla.appendChild(zrusit);
+
+      let info = document.createElement("span");
+      info.className = "info";
+      info.textContent = (uloha.id in rozpisane) ? "Neuložené zmeny" : "";
+      tlacidla.appendChild(info);
+      detail.appendChild(tlacidla);
+
+      // NOVÉ: kontrolný zoznam
+      detail.appendChild(vytvorKontrolnyZoznam(uloha));
+
+      // Komentáre
+      detail.appendChild(vytvorKomentare(uloha));
+
+      return detail;
+    }
+
+    // ---------- NOVÉ: KONTROLNÝ ZOZNAM ----------
+    function krokyKarty(ulohaId) {
+      return kroky.filter(function (k) { return k.ulohaId === ulohaId; });
+    }
+
+    function vytvorKontrolnyZoznam(uloha) {
+      let sekcia = document.createElement("div");
+      sekcia.className = "kontrolny";
+
+      let mojeKroky = krokyKarty(uloha.id);
+      let hotove = mojeKroky.filter(function (k) { return k.hotovo; }).length;
+
+      let nadpis = document.createElement("div");
+      nadpis.className = "kom-nadpis";
+      nadpis.textContent = "Kontrolný zoznam" + (mojeKroky.length ? "  " + hotove + "/" + mojeKroky.length : "");
+      sekcia.appendChild(nadpis);
+
+      // pásik postupu
+      if (mojeKroky.length > 0) {
+        let pasik = document.createElement("div");
+        pasik.className = "pasik";
+        let vypln = document.createElement("div");
+        vypln.style.width = Math.round(hotove / mojeKroky.length * 100) + "%";
+        pasik.appendChild(vypln);
+        sekcia.appendChild(pasik);
+      }
+
+      for (let krok of mojeKroky) {
+        let riadok = document.createElement("label");
+        riadok.className = "krok" + (krok.hotovo ? " hotovy" : "");
+
+        let policko = document.createElement("input");
+        policko.type = "checkbox";
+        policko.checked = krok.hotovo;
+        policko.onchange = function () {
+          zmenKrok(krok, { hotovo: policko.checked });
+        };
+        riadok.appendChild(policko);
+
+        let text = document.createElement("span");
+        text.textContent = krok.text;
+        riadok.appendChild(text);
+
+        let zmaz = document.createElement("button");
+        zmaz.className = "krok-zmaz";
+        zmaz.textContent = "×";
+        zmaz.title = "Odstrániť krok";
+        zmaz.onclick = function (e) {
+          e.preventDefault();
+          zmazKrok(krok);
+        };
+        riadok.appendChild(zmaz);
+
+        sekcia.appendChild(riadok);
+      }
+
+      // pole na nový krok (Enter = pridať)
+      let pole = document.createElement("input");
+      pole.type = "text";
+      pole.className = "krok-pole";
+      pole.placeholder = "+ Pridať krok (Enter)";
+      pole.dataset.fokus = "krok-" + uloha.id;
+      pole.value = noveKroky[uloha.id] || "";
+      pole.oninput = function () {
+        noveKroky[uloha.id] = pole.value;
+      };
+      pole.onkeydown = function (e) {
+        if (e.key === "Enter") pridajKrok(uloha, pole.value);
+      };
+      sekcia.appendChild(pole);
+
+      return sekcia;
+    }
+
+    async function pridajKrok(uloha, text) {
+      text = text.trim();
+      if (text === "" || !db) return;
+      noveKroky[uloha.id] = "";
+      try {
+        await db.collection("kroky").add({
+          ulohaId: uloha.id,
+          text: text,
+          hotovo: false,
+          cas: Date.now()
+        });
+        await oznacZmenu(uloha.id);
+      } catch (chyba) {
+        ukazChybu(chyba);
+      }
+    }
+
+    async function zmenKrok(krok, zmeny) {
+      if (!db) return;
+      try {
+        await db.collection("kroky").doc(krok.id).update(zmeny);
+        await oznacZmenu(krok.ulohaId);
+      } catch (chyba) {
+        ukazChybu(chyba);
+      }
+    }
+
+    async function zmazKrok(krok) {
+      if (!db) return;
+      try {
+        await db.collection("kroky").doc(krok.id).delete();
+        await oznacZmenu(krok.ulohaId);
+      } catch (chyba) {
+        ukazChybu(chyba);
+      }
+    }
+
+    // ---------- NOVÉ: NOVINKY ----------
+    // Zapíše ku karte, kto a kedy ju naposledy zmenil
+    async function oznacZmenu(ulohaId) {
+      if (!db) return;
+      try {
+        await db.collection("ulohy").doc(ulohaId).update({ zmenene: Date.now(), zmenil: vyberKto.value });
+      } catch (e) {}
+    }
+
+    // Má karta novinku? = zmenil ju ten druhý a ty si ju odvtedy neotvoril
+    function jeNovinka(uloha) {
+      if (!videne || !uloha.zmenene || !uloha.zmenil) return false;
+      if (uloha.zmenil === vyberKto.value) return false;
+      let videl = videne.karty[uloha.id] || videne.zaklad;
+      return uloha.zmenene > videl;
+    }
+
+    async function oznacVidene(ulohaId) {
+      if (!db || !videne) return;
+      let uloha = ulohy.find(function (u) { return u.id === ulohaId; });
+      if (!uloha || !jeNovinka(uloha)) return;
+      let karty = {};
+      karty[ulohaId] = Date.now();
+      try {
+        await db.doc("videne/" + vyberKto.value).update({ karty: karty });
+      } catch (e) {}
+    }
+
+    async function oznacVsetkoVidene() {
+      if (!db) return;
+      try {
+        await db.doc("videne/" + vyberKto.value).set({ zaklad: Date.now(), karty: {} });
+      } catch (e) {}
+    }
+
+    // Sleduje, čo už videl práve vybraný človek (Marek alebo Vlado)
+    function sledujVidene() {
+      if (zrusVidene) zrusVidene();
+      videne = null;
+      let meno = vyberKto.value;
+      zrusVidene = db.doc("videne/" + meno).onSnapshot(function (snimka) {
+        if (!snimka.exists) {
+          // prvá návšteva: všetko doterajšie berieme ako videné
+          if (!snimka.metadata.fromCache) {
+            db.doc("videne/" + meno).set({ zaklad: Date.now(), karty: {} }).catch(function () {});
+          }
+          return;
+        }
+        let data = snimka.data();
+        let karty = {};
+        if (data.karty && typeof data.karty === "object") {
+          for (let k in data.karty) karty[k] = Number(data.karty[k]) || 0;
+        }
+        videne = { zaklad: Number(data.zaklad) || 0, karty: karty };
+        vykresli();
+      }, function () {});
+    }
+
+    function aktualizujNovinky() {
+      let el = document.getElementById("novinky");
+      el.innerHTML = "";
+      let pocet = ulohy.filter(jeNovinka).length;
+      if (pocet === 0) return;
+      let text = document.createElement("span");
+      text.className = "novinky-text";
+      text.textContent = "🔴 Novinky: " + pocet + (pocet === 1 ? " karta" : pocet < 5 ? " karty" : " kariet");
+      el.appendChild(text);
+      let tlacidlo = document.createElement("button");
+      tlacidlo.className = "novinky-ok";
+      tlacidlo.textContent = "Označiť ako videné";
+      tlacidlo.onclick = oznacVsetkoVidene;
+      el.appendChild(tlacidlo);
+    }
+
+    // ---------- KOMENTÁRE ----------
+    function komentareKarty(ulohaId) {
+      return komentare.filter(function (k) { return k.ulohaId === ulohaId; });
+    }
+
+    function peknyCas(cas) {
+      let d = new Date(cas);
+      let min = String(d.getMinutes()).padStart(2, "0");
+      return d.getDate() + ". " + (d.getMonth() + 1) + ". " + d.getHours() + ":" + min;
+    }
+
+    function vytvorKomentare(uloha) {
+      let sekcia = document.createElement("div");
+      sekcia.className = "komentare";
+
+      let nadpis = document.createElement("div");
+      nadpis.className = "kom-nadpis";
+      nadpis.textContent = "Komentáre";
+      sekcia.appendChild(nadpis);
+
+      // Zoznam komentárov (od najstaršieho)
+      for (let k of komentareKarty(uloha.id)) {
+        let kom = document.createElement("div");
+        kom.className = "komentar";
+
+        let hlava = document.createElement("div");
+        hlava.className = "kom-hlava";
+        let meno = document.createElement("span");
+        meno.className = "autor " + k.autor.toLowerCase();
+        meno.textContent = k.autor || "?";
+        hlava.appendChild(meno);
+        let cas = document.createElement("span");
+        cas.className = "kom-cas";
+        cas.textContent = peknyCas(k.cas);
+        hlava.appendChild(cas);
+
+        // Zmazať môžeš len svoj komentár
+        if (k.autor === vyberKto.value) {
+          let zmaz = document.createElement("button");
+          zmaz.className = "kom-zmaz";
+          zmaz.textContent = "Zmazať";
+          zmaz.onclick = function () {
+            zmazKomentar(k.id);
+          };
+          hlava.appendChild(zmaz);
+        }
+        kom.appendChild(hlava);
+
+        let text = document.createElement("div");
+        text.className = "kom-text";
+        text.textContent = k.text;
+        kom.appendChild(text);
+
+        sekcia.appendChild(kom);
+      }
+
+      // Pole na nový komentár
+      let pole = document.createElement("textarea");
+      pole.className = "kom-pole";
+      pole.placeholder = "Napíš komentár… (Ctrl + Enter odošle)";
+      pole.dataset.fokus = "kom-" + uloha.id;
+      pole.value = rozpisaneKomentare[uloha.id] || "";
+      pole.oninput = function () {
+        rozpisaneKomentare[uloha.id] = pole.value;
+      };
+      pole.onkeydown = function (e) {
+        if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+          pridajKomentar(uloha, pole.value);
+        }
+      };
+      sekcia.appendChild(pole);
+
+      let odoslat = document.createElement("button");
+      odoslat.className = "male";
+      odoslat.textContent = "Pridať komentár";
+      odoslat.onclick = function () {
+        pridajKomentar(uloha, pole.value);
+      };
+      sekcia.appendChild(odoslat);
+
+      return sekcia;
+    }
+
+    async function pridajKomentar(uloha, text) {
+      text = text.trim();
+      if (text === "" || !db) return;
+      try {
+        await db.collection("komentare").add({
+          ulohaId: uloha.id,
+          autor: vyberKto.value,
+          text: text,
+          cas: Date.now()
+        });
+        delete rozpisaneKomentare[uloha.id];
+        await oznacZmenu(uloha.id);
+        vykresli();
+      } catch (chyba) {
+        ukazChybu(chyba);
+      }
+    }
+
+    async function zmazKomentar(id) {
+      if (!db) return;
+      try {
+        await db.collection("komentare").doc(id).delete();
+      } catch (chyba) {
+        ukazChybu(chyba);
+      }
+    }
+
+    // malý popis vľavo v rozbalenej karte
+    function stitok(text) {
+      let s = document.createElement("span");
+      s.textContent = text;
+      return s;
+    }
+
+    // Z dátumu "2026-11-25" vyrobí text ("zajtra", "o 3 dni"...) a farbu
+    function popisTerminu(termin) {
+      let dnes = new Date();
+      dnes.setHours(0, 0, 0, 0);
+      let casti = termin.split("-");
+      let datum = new Date(Number(casti[0]), Number(casti[1]) - 1, Number(casti[2]));
+      let rozdiel = Math.round((datum - dnes) / 86400000);
+      let pekneDatum = datum.getDate() + ". " + (datum.getMonth() + 1) + ".";
+
+      if (rozdiel < 0) return { text: "po termíne (" + pekneDatum + ")", trieda: "po-termine" };
+      if (rozdiel === 0) return { text: "dnes", trieda: "dnes" };
+      if (rozdiel === 1) return { text: "zajtra", trieda: "blizko" };
+      if (rozdiel <= 3) return { text: "o " + rozdiel + " dni", trieda: "blizko" };
+      return { text: pekneDatum, trieda: "" };
+    }
+
+    function aktualizujPocitadlo() {
+      let vsetky = ulohy.length;
+      let hotove = ulohy.filter(function (u) { return u.stav === "hotovo"; }).length;
+      let pocitadlo = document.getElementById("pocitadlo");
+
+      // ukazovateľ postupu (zelený pásik)
+      document.getElementById("ukazovatel").style.width =
+        (vsetky === 0 ? 0 : Math.round(hotove / vsetky * 100)) + "%";
+
+      if (vsetky > 0 && hotove === vsetky) {
+        pocitadlo.textContent = "Všetko hotové! 🎉";
+      } else {
+        pocitadlo.textContent = "Hotovo: " + hotove + " z " + vsetky;
+      }
+    }
+
+    // ---------- ZÁPIS DO SPOLOČNEJ DATABÁZY ----------
+    async function pridajUlohu() {
+      let policko = document.getElementById("novaUloha");
+      let text = policko.value.trim();
+      if (text === "" || !db) return;
+
+      policko.value = "";
+      try {
+        await db.collection("ulohy").add({
+          text: text,
+          popis: "",
+          stav: "urobit",               // nová karta ide do prvého stĺpca
+          splnena: false,
+          energia: document.getElementById("energia").value,
+          autor: vyberKto.value,
+          riesi: "",                    // NOVÉ: na začiatku ju nemá nikto na starosti
+          termin: document.getElementById("termin").value,
+          vytvorene: Date.now(),
+          zmenene: Date.now(),
+          zmenil: vyberKto.value
+        });
+        document.getElementById("termin").value = "";
+      } catch (chyba) {
+        ukazChybu(chyba);
+      }
+    }
+
+    // NOVÉ: uloží nový názov (prázdny názov neuložíme)
+    async function ulozNazov(uloha, text) {
+      text = text.trim();
+      delete rozpisaneNazvy[uloha.id];
+      if (text === "" || text === uloha.text) {
+        vykresli();   // vráti pôvodný názov
+        return;
+      }
+      await zmenUlohu(uloha, { text: text });
+    }
+
+    // NOVÉ: presun karty do iného stĺpca
+    async function presun(id, novyStav) {
+      let uloha = ulohy.find(function (u) { return u.id === id; });
+      if (!uloha || uloha.stav === novyStav) return;
+      let zmeny = { stav: novyStav, splnena: novyStav === "hotovo" };
+      // NOVÉ: kto presunie kartu bez zodpovedného do "Robí sa", ten ju má na starosti
+      if (novyStav === "robi" && !uloha.riesi) {
+        zmeny.riesi = vyberKto.value;
+      }
+      await zmenUlohu(uloha, zmeny);
+    }
+
+    // Jedna spoločná funkcia na každú zmenu karty (termín, rieši, popis, stĺpec)
+    async function zmenUlohu(uloha, zmeny) {
+      if (!db) return false;
+      try {
+        // NOVÉ: ku každej zmene pripíšeme kto a kedy ju urobil
+        zmeny.zmenene = Date.now();
+        zmeny.zmenil = vyberKto.value;
+        await db.collection("ulohy").doc(uloha.id).update(zmeny);
+        return true;
+      } catch (chyba) {
+        ukazChybu(chyba);
+        return false;
+      }
+    }
+
+    async function zmazUlohu(uloha) {
+      if (!db) return;
+      try {
+        await db.collection("ulohy").doc(uloha.id).delete();
+        // NOVÉ: zmaž aj komentáre ku karte
+        for (let k of komentareKarty(uloha.id)) {
+          await db.collection("komentare").doc(k.id).delete();
+        }
+        for (let k of krokyKarty(uloha.id)) {
+          await db.collection("kroky").doc(k.id).delete();
+        }
+        rozbalene.delete(uloha.id);
+        delete rozpisane[uloha.id];
+      } catch (chyba) {
+        ukazChybu(chyba);
+      }
+    }
+
+    function ukazChybu(chyba) {
+      let stav = document.getElementById("stav");
+      if (chyba && (chyba.code === "invalid_argument" || chyba.code === "permission-denied")) {
+        stav.textContent = "Na túto zmenu nemáš oprávnenie.";
+      } else {
+        stav.textContent = "Zmenu sa nepodarilo uložiť. Skús to znova.";
+      }
+    }
+
+    // ---------- ODPORÚČANIE PODĽA NÁLADY ----------
+    function odporuc(nalada) {
+      let vhodne = ulohy.filter(function (u) {
+        return u.stav !== "hotovo" &&
+               (u.energia || "stredna") === nalada &&
+               (filter === "vsetci" || u.riesi === filter);
+      });
+
+      let okienko = document.getElementById("odporucanie");
+      okienko.style.display = "block";
+
+      if (vhodne.length === 0) {
+        odporucanaId = null;
+        okienko.textContent = "Na túto náladu tu nemáte žiadnu úlohu. Možno je čas na prestávku ☕";
+        vykresli();
+        return;
+      }
+
+      let vybrana = vhodne[Math.floor(Math.random() * vhodne.length)];
+      odporucanaId = vybrana.id;
+      okienko.textContent = "Skús teraz: " + vybrana.text + "   (klikni znova pre inú možnosť)";
+      vykresli();
+    }
+
+    // ---------- PRIPOJENIE K DATABÁZE ----------
+    async function spusti() {
+      let stav = document.getElementById("stav");
+      db = window.fbDb;   // spoločná databáza Firebase (pripraví ju časť FIREBASE dole)
+
+      if (!db) {
+        stav.textContent = "Spoločnú tabuľu sa nedá načítať. Skús sa prihlásiť alebo obnoviť stránku.";
+        document.getElementById("pridat").disabled = true;
+        return;
+      }
+
+      let casovac = setTimeout(function () {
+        stav.textContent = "Tabuľu sa zatiaľ nedarí načítať, môže byť neaktuálna.";
+      }, 10000);
+
+      db.collection("ulohy").orderBy("vytvorene", "desc").onSnapshot(
+        function (snimka) {
+          if (!snimka.metadata.fromCache) {
+            clearTimeout(casovac);
+            stav.textContent = "Tabuľa je spoločná: zmeny vidia Marek aj Vlado naživo.";
+          }
+          ulohy = snimka.docs.map(function (d) {
+            let data = d.data();
+            // Staršie úlohy nemajú stĺpec: splnené idú do Hotovo, ostatné do Na urobenie
+            let stavUlohy = ["urobit", "robi", "hotovo"].includes(data.stav)
+              ? data.stav
+              : (data.splnena === true ? "hotovo" : "urobit");
+            let autor = (data.autor === "Marek" || data.autor === "Vlado") ? data.autor : "";
+            let riesi = (data.riesi === "Marek" || data.riesi === "Vlado") ? data.riesi : "";
+            return {
+              id: d.id,
+              text: String(data.text || ""),
+              popis: data.popis ? String(data.popis) : "",
+              stav: stavUlohy,
+              energia: data.energia,
+              autor: autor,
+              riesi: riesi,
+              termin: /^\d{4}-\d{2}-\d{2}$/.test(String(data.termin || "")) ? String(data.termin) : "",
+              zmenene: Number(data.zmenene) || 0,
+              zmenil: (data.zmenil === "Marek" || data.zmenil === "Vlado") ? data.zmenil : ""
+            };
+          });
+          vykresli();
+        },
+        function (chyba) {
+          clearTimeout(casovac);
+          stav.textContent = "Spojenie s tabuľou sa prerušilo. Obnov stránku.";
+        }
+      );
+
+      // NOVÉ: sledovanie krokov kontrolných zoznamov
+      db.collection("kroky").orderBy("cas", "asc").onSnapshot(
+        function (snimka) {
+          kroky = snimka.docs.map(function (d) {
+            let data = d.data();
+            return {
+              id: d.id,
+              ulohaId: String(data.ulohaId || ""),
+              text: String(data.text || ""),
+              hotovo: data.hotovo === true
+            };
+          });
+          vykresli();
+        },
+        function () {}
+      );
+
+      // NOVÉ: novinky pre vybraného človeka
+      sledujVidene();
+
+      // Sledovanie komentárov (jeden spoločný zoznam pre všetky karty)
+      db.collection("komentare").orderBy("cas", "asc").onSnapshot(
+        function (snimka) {
+          komentare = snimka.docs.map(function (d) {
+            let data = d.data();
+            return {
+              id: d.id,
+              ulohaId: String(data.ulohaId || ""),
+              autor: (data.autor === "Marek" || data.autor === "Vlado") ? data.autor : "",
+              text: String(data.text || ""),
+              cas: Number(data.cas) || 0
+            };
+          });
+          vykresli();
+        },
+        function () {}
+      );
+    }
+
+    // Ak sa Firebase do 10 sekúnd nenačíta, povedz to (napr. chýba firebaseConfig)
+    setTimeout(function () {
+      let tlacidlo = document.getElementById("prihlasit");
+      let sprava = document.getElementById("prihlasenie-sprava");
+      if (tlacidlo.style.display === "none" && document.getElementById("aplikacia").style.display === "none") {
+        sprava.className = "chyba";
+        sprava.textContent = "Nepodarilo sa pripojiť k Firebase. Skontroluj internet a firebaseConfig.";
+      }
+    }, 10000);
+
+    // Toto zavolá časť FIREBASE, keď sa niekto úspešne prihlási
+    window.spustiPoPrihlaseni = function (meno) {
+      vyberKto.value = meno;
+      let menoEl = document.getElementById("meno");
+      menoEl.textContent = meno;
+      menoEl.className = "autor " + meno.toLowerCase();
+      document.getElementById("prihlasenie").style.display = "none";
+      document.getElementById("aplikacia").style.display = "block";
+      vykresli();
+      spusti();
+    };
+  </script>
+
+  <!-- ===================================================================
+       FIREBASE: prihlásenie cez Google a spoločná databáza
+       =================================================================== -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect,
+      onAuthStateChanged, signOut
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import {
+      getFirestore, collection, doc, query, orderBy, onSnapshot,
+      addDoc, updateDoc, deleteDoc, setDoc
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    // Nastavenie Firebase projektu (nie je tajné, je súčasťou každej Firebase stránky)
+    const firebaseConfig = {
+      apiKey: "AIzaSyDmMBJtz5xGOpAeFPfIxsY9tnF3XYr1F14",
+      authDomain: "spolocne-ulohy.firebaseapp.com",
+      projectId: "spolocne-ulohy",
+      storageBucket: "spolocne-ulohy.firebasestorage.app",
+      messagingSenderId: "825311140218",
+      appId: "1:825311140218:web:3dc3869c00b9571fca1ec3"
+    };
+
+    // Kto smie používať tabuľu: e-mail -> meno v aplikácii
+    const ludia = {
+      "marek.richto@gmail.com": "Marek",
+      "vladimir.randa@gmail.com": "Vlado"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const fs = getFirestore(app);
+
+    // --- Prihlásenie ---
+    const tlacidloPrihlasit = document.getElementById("prihlasit");
+    const sprava = document.getElementById("prihlasenie-sprava");
+
+    tlacidloPrihlasit.onclick = async function () {
+      sprava.className = "";
+      sprava.textContent = "";
+      const provider = new GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: "select_account" });
+      try {
+        await signInWithPopup(auth, provider);
+      } catch (e) {
+        // Ak prehliadač zablokuje vyskakovacie okno, skúsime presmerovanie
+        if (e.code === "auth/popup-blocked" || e.code === "auth/operation-not-supported-in-this-environment") {
+          await signInWithRedirect(auth, provider);
+        } else if (e.code !== "auth/popup-closed-by-user" && e.code !== "auth/cancelled-popup-request") {
+          sprava.className = "chyba";
+          sprava.textContent = "Prihlásenie sa nepodarilo (" + e.code + ").";
+        }
+      }
+    };
+
+    document.getElementById("odhlasit").onclick = async function () {
+      await signOut(auth);
+      location.reload();
+    };
+
+    let spustene = false;
+    onAuthStateChanged(auth, async function (user) {
+      if (!user) {
+        tlacidloPrihlasit.style.display = "";
+        if (!sprava.classList.contains("chyba")) sprava.textContent = "";
+        return;
+      }
+      const email = (user.email || "").toLowerCase();
+      const meno = ludia[email];
+      if (!meno) {
+        // Prihlásil sa niekto, kto nie je v zozname
+        sprava.className = "chyba";
+        sprava.textContent = "Účet " + email + " nemá prístup k tejto tabuli.";
+        await signOut(auth);
+        return;
+      }
+      if (!spustene) {
+        spustene = true;
+        window.spustiPoPrihlaseni(meno);
+      }
+    });
+
+    // --- Spoločná databáza ---
+    // Aplikácia bola napísaná pre databázu v Claude. Tento "prekladač"
+    // ponúka rovnaké príkazy (collection, doc, add, update, onSnapshot...),
+    // ale vnútri používa Firebase. Vďaka tomu sa zvyšok kódu nemusel meniť.
+
+    // {karty: {abc: 5}} -> {"karty.abc": 5}, aby sa vnorené údaje doplnili, nie prepísali
+    function naCesty(data, predpona, vysledok) {
+      vysledok = vysledok || {};
+      for (const k in data) {
+        const v = data[k];
+        const cesta = predpona ? predpona + "." + k : k;
+        if (v && typeof v === "object" && !Array.isArray(v) && Object.keys(v).length > 0) {
+          naCesty(v, cesta, vysledok);
+        } else {
+          vysledok[cesta] = v;
+        }
+      }
+      return vysledok;
+    }
+
+    function dokument(ref) {
+      return {
+        id: ref.id,
+        update: function (data) { return updateDoc(ref, naCesty(data)); },
+        set: function (data) { return setDoc(ref, data); },
+        delete: function () { return deleteDoc(ref); },
+        onSnapshot: function (next, chyba) {
+          return onSnapshot(ref, { includeMetadataChanges: true }, function (d) {
+            next({ id: d.id, exists: d.exists(), data: function () { return d.data(); }, metadata: d.metadata });
+          }, chyba);
+        }
+      };
+    }
+
+    function zbierka(nazov, poradie) {
+      return {
+        orderBy: function (pole, smer) { return zbierka(nazov, [pole, smer || "asc"]); },
+        doc: function (id) { return dokument(doc(fs, nazov, id)); },
+        add: function (data) { return addDoc(collection(fs, nazov), data); },
+        onSnapshot: function (next, chyba) {
+          let q = collection(fs, nazov);
+          if (poradie) q = query(q, orderBy(poradie[0], poradie[1]));
+          return onSnapshot(q, { includeMetadataChanges: true }, function (snimka) {
+            next({ docs: snimka.docs, metadata: snimka.metadata });
+          }, chyba);
+        }
+      };
+    }
+
+    window.fbDb = {
+      collection: function (nazov) { return zbierka(nazov); },
+      doc: function (cesta) {
+        const casti = cesta.split("/");
+        return dokument(doc(fs, casti[0], casti[1]));
+      }
+    };
+  </script>
+</body>
+</html>
