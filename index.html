@@ -380,6 +380,28 @@
     .detail .tlacidla { margin-top: 8px; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
     .detail .info { color: var(--seda-text); font-size: 12px; }
 
+    /* NOVÉ: oznam o novej verzii */
+    .nova-verzia {
+      position: fixed;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(480px, calc(100% - 24px));
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      background: var(--tmava);
+      color: white;
+      font-size: 14px;
+      padding: 10px 10px 10px 16px;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(16,24,40,.3);
+      z-index: 60;
+    }
+    .nova-verzia[hidden] { display: none; }
+    .nova-verzia button { padding: 7px 14px; font-size: 14px; }
+
     /* NOVÉ: plávajúce vyhľadávanie */
     .fab {
       position: fixed;
@@ -542,6 +564,12 @@
 </head>
 
 <body>
+  <!-- NOVÉ: oznam o novej verzii -->
+  <div id="nova-verzia" class="nova-verzia" hidden>
+    ✨ Je dostupná nová verzia aplikácie.
+    <button id="obnovit">Obnoviť</button>
+  </div>
+
   <!-- NOVÉ: úvodná obrazovka s prihlásením -->
   <div id="prihlasenie">
     <div class="prihlasenie-karta">
@@ -630,6 +658,10 @@
   </div>
 
   <script>
+    // ---------- VERZIA ----------
+    // Pri každej novej verzii zvýš toto číslo. Aplikácia tak spozná, že je k dispozícii novšia.
+    const VERZIA = "4";
+
     // ---------- NASTAVENIA ----------
     let ikonky = { nizka: "😴", stredna: "🙂", vysoka: "💪" };
 
@@ -1807,6 +1839,30 @@
         sprava.textContent = "Nepodarilo sa pripojiť k Firebase. Skontroluj internet a firebaseConfig.";
       }
     }, 10000);
+
+    // NOVÉ: kontrola novej verzie.
+    // Stiahne aktuálny index.html priamo z GitHubu (obíde pamäť prehliadača)
+    // a porovná číslo verzie. Ak je novšia, ukáže pásik s tlačidlom Obnoviť.
+    async function skontrolujVerziu() {
+      try {
+        let odpoved = await fetch(location.pathname, { cache: "reload" });
+        let text = await odpoved.text();
+        let najdena = text.match(/const VERZIA = "([^"]+)"/);
+        if (najdena && najdena[1] !== VERZIA) {
+          document.getElementById("nova-verzia").hidden = false;
+        }
+      } catch (e) {
+        // bez internetu sa nič nedeje
+      }
+    }
+    document.getElementById("obnovit").onclick = function () {
+      location.reload();
+    };
+    skontrolujVerziu();
+    // aj keď sa vrátiš do aplikácie, ktorú si mal len na pozadí
+    document.addEventListener("visibilitychange", function () {
+      if (document.visibilityState === "visible") skontrolujVerziu();
+    });
 
     // Toto zavolá časť FIREBASE, keď sa niekto úspešne prihlási
     window.spustiPoPrihlaseni = function (meno) {
