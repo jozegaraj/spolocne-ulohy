@@ -164,6 +164,15 @@
       outline: none;
     }
     .panel input[type="text"]:focus { border-color: var(--cervena); box-shadow: 0 0 0 3px rgba(229,72,77,.15); }
+    .termin-pole {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      color: var(--seda-text);
+      white-space: nowrap;
+    }
+    .termin-pole small { font-size: 12px; color: #9ca3af; }
     .panel select, .panel input[type="date"] {
       padding: 10px;
       font-size: 14px;
@@ -380,6 +389,139 @@
     .detail .tlacidla { margin-top: 8px; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
     .detail .info { color: var(--seda-text); font-size: 12px; }
 
+    /* ================================================================
+       NOVÉ: KOMPAKTNÝ MOBIL (šírka do 600 bodov, napr. Samsung XCover Pro = 412)
+       ================================================================ */
+    .panel-hlavicka, .fab-pridat, .zavoj { display: none; }
+
+    @media (max-width: 600px) {
+      /* Horná lišta: 1. riadok logo + meno, 2. riadok filter */
+      header {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        align-items: center;
+        gap: 8px 10px;
+        padding: 10px 12px;
+      }
+      .lista { display: contents; }
+      .ja { grid-column: 2; grid-row: 1; }
+      .filter-obal {
+        grid-column: 1 / -1;
+        grid-row: 2;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+      }
+      .segment { flex: 1; margin-left: 0; }
+      .segment button { flex: 1; padding: 6px 4px; }
+      .logo { gap: 8px; min-width: 0; }
+      .logo-ikona { width: 28px; height: 28px; font-size: 15px; border-radius: 8px; flex-shrink: 0; }
+      h1 { font-size: 17px; white-space: nowrap; }
+      #stav { font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 190px; }
+      .ja .autor { font-size: 12px; padding: 3px 8px; }
+      .odhlasit { padding: 4px 8px; font-size: 12px; }
+
+      main { padding: 10px 12px 160px; }
+
+      /* Nálada + počítadlo v jednom riadku */
+      .riadok-info { margin: 0 0 10px; gap: 8px; flex-wrap: nowrap; }
+      .nalady { gap: 4px; font-size: 13px; flex-wrap: nowrap; white-space: nowrap; }
+      .nalady .slovo { display: none; }
+      .nalady button { padding: 5px 9px; font-size: 16px; }
+      .vpravo { gap: 8px; flex-wrap: nowrap; }
+      #pocitadlo { font-size: 13px; white-space: nowrap; }
+      .ukazovatel { width: 44px; margin-left: 6px; }
+      #novinky { position: fixed; left: 12px; bottom: 26px; z-index: 40;
+                 background: var(--biela); padding: 6px 8px 6px 12px; border-radius: 999px;
+                 box-shadow: var(--tien-hover); }
+      #novinky:empty { display: none; }
+
+      .tabula { gap: 12px; }
+      .stlpec { padding: 10px; }
+
+      /* Panel "Nová karta" ako vysúvací formulár zdola */
+      .panel {
+        display: none;
+        position: fixed;
+        left: 0; right: 0; bottom: 0;
+        z-index: 56;
+        border-radius: 18px 18px 0 0;
+        padding: 14px 14px 22px;
+        box-shadow: 0 -10px 30px rgba(16,24,40,.25);
+        animation: zdola .2s ease-out;
+      }
+      .panel-hlavicka {
+        display: flex;
+        width: 100%;
+        justify-content: space-between;
+        align-items: center;
+        font-weight: 600;
+        font-size: 16px;
+      }
+      .panel input[type="text"] { flex-basis: 100%; }
+      .panel select, .panel input[type="date"] { flex: 1; min-width: 0; }
+      #pridat { flex-basis: 100%; padding: 13px; order: 4; }
+      #energia { order: 1; }
+      #opakovanie { order: 2; }
+      .termin-pole { order: 3; flex-basis: 100%; }
+      .termin-pole input { flex: 1; }
+      body.pridavam .panel { display: flex; }
+      body.pridavam .zavoj {
+        display: block;
+        position: fixed; inset: 0;
+        background: rgba(16,24,40,.35);
+        z-index: 55;
+      }
+      body.pridavam .fab { display: none; }
+
+      /* Plávajúce tlačidlá: + nad 🔍 */
+      .fab.fab-pridat {
+        display: block;
+        bottom: 90px;
+        font-size: 28px;
+        font-weight: 400;
+      }
+      .fab#fab-hladat {
+        background: var(--biela);
+        color: var(--tmava);
+        box-shadow: 0 4px 14px rgba(16,24,40,.25);
+      }
+      .fab-pridat[hidden] { display: none; }
+    }
+    @media (max-width: 380px) {
+      .ukazovatel { display: none; }
+    }
+    @keyframes zdola {
+      from { transform: translateY(100%); }
+      to   { transform: translateY(0); }
+    }
+
+    /* NOVÉ: archív */
+    .archiv-prepinac {
+      display: block;
+      width: 100%;
+      margin-top: 4px;
+      padding: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      background: none;
+      color: var(--seda-text);
+      border: 1px dashed #c4c7cf;
+      border-radius: 10px;
+    }
+    .archiv-prepinac:hover { background: var(--biela); filter: none; }
+    .archiv { margin-top: 8px !important; }
+    .karta.archivovana { opacity: .65; }
+    .karta.archivovana:hover { opacity: 1; }
+
+    .paticka {
+      text-align: center;
+      font-size: 12px;
+      color: #9ca3af;
+      margin-top: 28px;
+    }
+
     /* NOVÉ: oznam o novej verzii */
     .nova-verzia {
       position: fixed;
@@ -594,12 +736,7 @@
     </div>
 
     <div class="lista">
-      <!-- Kto je prihlásený (nastaví sa automaticky podľa Google účtu) -->
-      <span class="ja">
-        <span id="meno" class="autor"></span>
-        <button id="odhlasit" class="odhlasit">Odhlásiť</button>
-      </span>
-      <span>
+      <span class="filter-obal">
         Ukáž:
         <span class="segment filter">
           <button data-filter="vsetci" class="aktivny">Všetky</button>
@@ -607,21 +744,36 @@
           <button data-filter="Vlado">Vlado</button>
         </span>
       </span>
+      <!-- Odhlásenie vpravo hore -->
+      <span class="ja">
+        <button id="odhlasit" class="odhlasit">Odhlásiť</button>
+      </span>
     </div>
   </header>
 
   <main>
-    <div class="panel">
-      <input type="text" id="novaUloha" placeholder="Nová karta: čo treba urobiť?">
+    <div class="panel" id="panel">
+      <!-- hlavička vysúvacieho formulára (iba na mobile) -->
+      <div class="panel-hlavicka">
+        <span>Nová karta</span>
+        <button id="panel-zavriet" class="hladat-zavriet" aria-label="Zavrieť">×</button>
+      </div>
+      <input type="text" id="novaUloha" placeholder="Tu napíš úlohu">
       <select id="energia" title="Náročnosť">
+        <option value="" selected hidden>⚡ Náročnosť</option>
         <option value="nizka">😴 Ľahká</option>
-        <option value="stredna" selected>🙂 Stredná</option>
+        <option value="stredna">🙂 Stredná</option>
         <option value="vysoka">💪 Náročná</option>
       </select>
-      <input type="date" id="termin" title="Termín (nepovinné)">
+      <!-- NOVÉ: termín s popisom, aby bolo jasné, čo to prázdne pole znamená -->
+      <label class="termin-pole">
+        <span>📅 Deadline <small>(nepovinný)</small></span>
+        <input type="date" id="termin">
+      </label>
       <!-- NOVÉ: opakovanie -->
       <select id="opakovanie" title="Opakovanie">
-        <option value="">🔁 Neopakovať</option>
+        <option value="" selected hidden>🔁 Opakovanie</option>
+        <option value="">Neopakovať</option>
         <option value="denne">🔁 Denne</option>
         <option value="tyzdenne">🔁 Týždenne</option>
         <option value="mesacne">🔁 Mesačne</option>
@@ -632,9 +784,9 @@
     <div class="riadok-info">
       <div class="nalady">
         Ako sa cítiš?
-        <button onclick="odporuc('nizka')">😴 Unavený</button>
-        <button onclick="odporuc('stredna')">🙂 V pohode</button>
-        <button onclick="odporuc('vysoka')">💪 Nabitý</button>
+        <button onclick="odporuc('nizka')" title="Som unavený">😴<span class="slovo"> Unavený</span></button>
+        <button onclick="odporuc('stredna')" title="Som v pohode">🙂<span class="slovo"> V pohode</span></button>
+        <button onclick="odporuc('vysoka')" title="Som nabitý">💪<span class="slovo"> Nabitý</span></button>
       </div>
       <div class="vpravo">
         <span id="novinky"></span>
@@ -645,9 +797,15 @@
 
     <!-- Tabuľa s tromi stĺpcami. Karty doň kreslí JavaScript. -->
     <div class="tabula" id="tabula"></div>
+
+    <!-- NOVÉ: číslo verzie úplne dole -->
+    <footer class="paticka">Spoločné úlohy · verzia <span id="cislo-verzie"></span> · <span id="datum-verzie"></span></footer>
   </main>
 
   <!-- NOVÉ: plávajúce tlačidlo vyhľadávania a vysúvacie pole -->
+  <!-- NOVÉ: na mobile pridávanie cez plávajúce tlačidlo + -->
+  <button id="fab-pridat" class="fab fab-pridat" title="Nová karta" aria-label="Nová karta">＋</button>
+  <div id="zavoj" class="zavoj"></div>
   <button id="fab-hladat" class="fab" title="Hľadať (klávesa /)" aria-label="Hľadať">🔍</button>
   <div id="hladat-panel" class="hladat-panel" hidden>
     <span class="lupa">🔍</span>
@@ -660,7 +818,8 @@
   <script>
     // ---------- VERZIA ----------
     // Pri každej novej verzii zvýš toto číslo. Aplikácia tak spozná, že je k dispozícii novšia.
-    const VERZIA = "4";
+    const VERZIA = "5";
+    const DATUM_VERZIE = "25. 11. 2026";   // kedy verzia išla von
 
     // ---------- NASTAVENIA ----------
     let ikonky = { nizka: "😴", stredna: "🙂", vysoka: "💪" };
@@ -670,9 +829,9 @@
 
     // NOVÉ: stĺpce tabule. "id" sa ukladá do databázy, "nazov" vidíš na stránke.
     let stlpce = [
-      { id: "urobit", nazov: "📋 Na urobenie" },
-      { id: "robi",   nazov: "🔨 Robí sa" },
-      { id: "hotovo", nazov: "✅ Hotovo" }
+      { id: "urobit", nazov: "📋 To-do" },
+      { id: "robi",   nazov: "🔨 In Progress" },
+      { id: "hotovo", nazov: "✅ Done" }
     ];
 
     let db = null;
@@ -690,6 +849,17 @@
     let kreslim = false;
     // NOVÉ: ktorá karta sa práve pýta "Naozaj zmazať?"
     let potvrdzujeMazanie = null;
+
+    // NOVÉ: archív
+    const DNI_DO_ARCHIVU = 10;
+    let zobrazArchiv = false;
+    // Karta je v archíve, ak je v Done dlhšie ako 10 dní
+    function jeVArchive(uloha) {
+      if (uloha.stav !== "hotovo") return false;
+      let odKedy = uloha.hotovoOd || uloha.zmenene;   // staršie karty nemajú "hotovoOd"
+      if (!odKedy) return false;
+      return Date.now() - odKedy > DNI_DO_ARCHIVU * 86400000;
+    }
     // NOVÉ: kroky kontrolných zoznamov všetkých kariet
     let kroky = [];
     let noveKroky = {};          // rozpísaný nový krok pre každú kartu
@@ -729,6 +899,7 @@
     function otvorHladanie() {
       panelHladat.hidden = false;
       fab.hidden = true;
+      document.getElementById("fab-pridat").hidden = true;
       poleHladat.focus();
     }
 
@@ -737,10 +908,29 @@
       hladat = "";
       panelHladat.hidden = true;
       fab.hidden = false;
+      document.getElementById("fab-pridat").hidden = false;
       vykresli();
     }
 
     fab.onclick = otvorHladanie;
+
+    // NOVÉ: vysúvací formulár "Nová karta" na mobile
+    function jeMobil() {
+      return window.matchMedia("(max-width: 600px)").matches;
+    }
+    function otvorPridavanie() {
+      document.body.classList.add("pridavam");
+      document.getElementById("novaUloha").focus();
+    }
+    function zavriPridavanie() {
+      document.body.classList.remove("pridavam");
+    }
+    document.getElementById("fab-pridat").onclick = otvorPridavanie;
+    document.getElementById("panel-zavriet").onclick = zavriPridavanie;
+    document.getElementById("zavoj").onclick = zavriPridavanie;
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && document.body.classList.contains("pridavam")) zavriPridavanie();
+    });
     document.getElementById("hladat-zavriet").onclick = zavriHladanie;
 
     // Klávesa "/" otvorí vyhľadávanie (ak práve nepíšeš do iného poľa)
@@ -797,7 +987,10 @@
 
       for (let i = 0; i < stlpce.length; i++) {
         let stlpec = stlpce[i];
-        let karty = viditelne.filter(function (u) { return u.stav === stlpec.id; });
+        let vsetkyVStlpci = viditelne.filter(function (u) { return u.stav === stlpec.id; });
+        // NOVÉ: staré karty z Done idú do archívu
+        let karty = vsetkyVStlpci.filter(function (u) { return !jeVArchive(u); });
+        let archiv = vsetkyVStlpci.filter(jeVArchive);
 
         let div = document.createElement("div");
         div.className = "stlpec s-" + stlpec.id;
@@ -821,6 +1014,31 @@
           ul.appendChild(prazdny);
         }
         div.appendChild(ul);
+
+        // NOVÉ: archív na spodku stĺpca Done
+        if (archiv.length > 0) {
+          let ukazArchiv = zobrazArchiv || hladat !== "";
+          let prepinac = document.createElement("button");
+          prepinac.className = "archiv-prepinac";
+          prepinac.textContent = "🗄 Archív (" + archiv.length + ") " + (ukazArchiv ? "▲" : "▼");
+          prepinac.title = "Karty, ktoré sú v Done dlhšie ako " + DNI_DO_ARCHIVU + " dní";
+          prepinac.onclick = function () {
+            zobrazArchiv = !zobrazArchiv;
+            vykresli();
+          };
+          div.appendChild(prepinac);
+
+          if (ukazArchiv) {
+            let ulArchiv = document.createElement("ul");
+            ulArchiv.className = "archiv";
+            for (let uloha of archiv) {
+              let karta = vytvorKartu(uloha, i);
+              karta.classList.add("archivovana");
+              ulArchiv.appendChild(karta);
+            }
+            div.appendChild(ulArchiv);
+          }
+        }
 
         // NOVÉ: ťahanie kariet myšou (drag & drop)
         div.ondragover = function (e) {
@@ -1043,7 +1261,7 @@
       // Termín
       let terminRiadok = document.createElement("div");
       terminRiadok.className = "pole-riadok";
-      terminRiadok.appendChild(stitok("Termín"));
+      terminRiadok.appendChild(stitok("Deadline"));
       let terminPole = document.createElement("input");
       terminPole.type = "date";
       terminPole.value = uloha.termin;
@@ -1053,7 +1271,7 @@
       terminRiadok.appendChild(terminPole);
       if (uloha.termin) {
         let bezTerminu = document.createElement("button");
-        bezTerminu.textContent = "Bez termínu";
+        bezTerminu.textContent = "Bez deadlinu";
         bezTerminu.className = "svetle male";
         bezTerminu.onclick = function () {
           zmenUlohu(uloha, { termin: "" });
@@ -1083,7 +1301,7 @@
         infoOpak.className = "info";
         infoOpak.textContent = uloha.nasledovnik
           ? "(ďalšia karta už je vytvorená)"
-          : "(po presune do Hotovo sa vytvorí ďalšia)";
+          : "(po presune do Done sa vytvorí ďalšia)";
         opakRiadok.appendChild(infoOpak);
       }
       detail.appendChild(opakRiadok);
@@ -1521,7 +1739,7 @@
       let rozdiel = Math.round((datum - dnes) / 86400000);
       let pekneDatum = datum.getDate() + ". " + (datum.getMonth() + 1) + ".";
 
-      if (rozdiel < 0) return { text: "po termíne (" + pekneDatum + ")", trieda: "po-termine" };
+      if (rozdiel < 0) return { text: "po deadline (" + pekneDatum + ")", trieda: "po-termine" };
       if (rozdiel === 0) return { text: "dnes", trieda: "dnes" };
       if (rozdiel === 1) return { text: "zajtra", trieda: "blizko" };
       if (rozdiel <= 3) return { text: "o " + rozdiel + " dni", trieda: "blizko" };
@@ -1529,8 +1747,10 @@
     }
 
     function aktualizujPocitadlo() {
-      let vsetky = ulohy.length;
-      let hotove = ulohy.filter(function (u) { return u.stav === "hotovo"; }).length;
+      // NOVÉ: archívne karty sa nerátajú
+      let aktivne = ulohy.filter(function (u) { return !jeVArchive(u); });
+      let vsetky = aktivne.length;
+      let hotove = aktivne.filter(function (u) { return u.stav === "hotovo"; }).length;
       let pocitadlo = document.getElementById("pocitadlo");
 
       // ukazovateľ postupu (zelený pásik)
@@ -1540,7 +1760,7 @@
       if (vsetky > 0 && hotove === vsetky) {
         pocitadlo.textContent = "Všetko hotové! 🎉";
       } else {
-        pocitadlo.textContent = "Hotovo: " + hotove + " z " + vsetky;
+        pocitadlo.textContent = "Done: " + hotove + " z " + vsetky;
       }
     }
 
@@ -1557,7 +1777,7 @@
           popis: "",
           stav: "urobit",               // nová karta ide do prvého stĺpca
           splnena: false,
-          energia: document.getElementById("energia").value,
+          energia: document.getElementById("energia").value || "stredna",
           autor: vyberKto.value,
           riesi: "",                    // NOVÉ: na začiatku ju nemá nikto na starosti
           termin: document.getElementById("termin").value,
@@ -1567,7 +1787,9 @@
           zmenil: vyberKto.value
         });
         document.getElementById("termin").value = "";
-        document.getElementById("opakovanie").value = "";
+        document.getElementById("opakovanie").selectedIndex = 0;
+        document.getElementById("energia").selectedIndex = 0;
+        if (jeMobil()) zavriPridavanie();   // NOVÉ: na mobile formulár po pridaní zavri
       } catch (chyba) {
         ukazChybu(chyba);
       }
@@ -1589,6 +1811,8 @@
       let uloha = ulohy.find(function (u) { return u.id === id; });
       if (!uloha || uloha.stav === novyStav) return;
       let zmeny = { stav: novyStav, splnena: novyStav === "hotovo" };
+      // NOVÉ: zapamätaj si, odkedy je karta v Done (kvôli archívu)
+      zmeny.hotovoOd = novyStav === "hotovo" ? Date.now() : 0;
       // NOVÉ: kto presunie kartu bez zodpovedného do "Robí sa", ten ju má na starosti
       if (novyStav === "robi" && !uloha.riesi) {
         zmeny.riesi = vyberKto.value;
@@ -1758,7 +1982,9 @@
         function (snimka) {
           if (!snimka.metadata.fromCache) {
             clearTimeout(casovac);
-            stav.textContent = "Tabuľa je spoločná: zmeny vidia Marek aj Vlado naživo.";
+            // NOVÉ: oslovenie podľa toho, kto je prihlásený
+            let druhy = vyberKto.value === "Marek" ? "Vlado" : "Marek";
+            stav.textContent = "Zmeny vidíš ty aj " + druhy + " naživo.";
           }
           ulohy = snimka.docs.map(function (d) {
             let data = d.data();
@@ -1778,6 +2004,7 @@
               riesi: riesi,
               termin: /^\d{4}-\d{2}-\d{2}$/.test(String(data.termin || "")) ? String(data.termin) : "",
               zmenene: Number(data.zmenene) || 0,
+              hotovoOd: Number(data.hotovoOd) || 0,
               opakovanie: (data.opakovanie in opakovania) ? data.opakovanie : "",
               nasledovnik: data.nasledovnik ? String(data.nasledovnik) : "",
               zmenil: (data.zmenil === "Marek" || data.zmenil === "Vlado") ? data.zmenil : ""
@@ -1840,6 +2067,9 @@
       }
     }, 10000);
 
+    document.getElementById("cislo-verzie").textContent = VERZIA;
+    document.getElementById("datum-verzie").textContent = DATUM_VERZIE;
+
     // NOVÉ: kontrola novej verzie.
     // Stiahne aktuálny index.html priamo z GitHubu (obíde pamäť prehliadača)
     // a porovná číslo verzie. Ak je novšia, ukáže pásik s tlačidlom Obnoviť.
@@ -1859,6 +2089,13 @@
       location.reload();
     };
     skontrolujVerziu();
+
+    // NOVÉ: zaregistruj "strážnika" (sw.js), ktorý zabezpečí, že sa vždy
+    // načíta najnovšia verzia z internetu
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("sw.js").catch(function () {});
+    }
+
     // aj keď sa vrátiš do aplikácie, ktorú si mal len na pozadí
     document.addEventListener("visibilitychange", function () {
       if (document.visibilityState === "visible") skontrolujVerziu();
@@ -1867,9 +2104,6 @@
     // Toto zavolá časť FIREBASE, keď sa niekto úspešne prihlási
     window.spustiPoPrihlaseni = function (meno) {
       vyberKto.value = meno;
-      let menoEl = document.getElementById("meno");
-      menoEl.textContent = meno;
-      menoEl.className = "autor " + meno.toLowerCase();
       document.getElementById("prihlasenie").style.display = "none";
       document.getElementById("aplikacia").style.display = "block";
       vykresli();
