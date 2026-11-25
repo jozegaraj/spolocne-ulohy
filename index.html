@@ -95,16 +95,17 @@
       gap: 24px;
       flex-wrap: wrap;
     }
-    .logo { display: flex; align-items: center; gap: 10px; }
+    .logo { display: flex; align-items: center; gap: 12px; }
     .logo-ikona {
-      width: 34px; height: 34px;
-      border-radius: 9px;
+      width: 46px; height: 46px;
+      border-radius: 12px;
       background: var(--cervena);
       color: white;
       display: grid; place-items: center;
-      font-size: 18px;
+      font-size: 24px;
+      box-shadow: 0 2px 6px rgba(229,72,77,.3);
     }
-    h1 { font-size: 20px; margin: 0; color: var(--tmava); }
+    h1 { font-size: 26px; margin: 0; color: var(--tmava); letter-spacing: -0.01em; }
     #stav { color: var(--seda-text); font-size: 12px; margin: 2px 0 0; }
     .lista { display: flex; gap: 18px; flex-wrap: wrap; align-items: center; margin-left: auto; font-size: 14px; color: var(--seda-text); }
 
@@ -218,6 +219,21 @@
       display: none;
     }
     #pocitadlo { font-weight: 600; font-size: 14px; margin: 0; }
+    /* NOVÉ: zapnutá nálada a tlačidlo Zrušiť */
+    .nalady button.aktivna { border-color: #f0b400; background: #fff7e0; box-shadow: 0 0 0 3px rgba(240,180,0,.2); }
+    #odporucanie { align-items: center; justify-content: space-between; gap: 10px; }
+    .odporucanie-tlacidla { display: flex; gap: 6px; flex-shrink: 0; }
+    .odporucanie-zrusit {
+      flex-shrink: 0;
+      padding: 5px 10px;
+      font-size: 13px;
+      font-weight: 500;
+      background: var(--biela);
+      color: var(--tmava);
+      border: 1px solid #f6d77a;
+      border-radius: 8px;
+    }
+    .odporucanie-zrusit:hover { filter: none; background: #fffbeb; }
     .ukazovatel { width: 160px; height: 8px; background: var(--okraj); border-radius: 99px; overflow: hidden; display: inline-block; vertical-align: middle; margin-left: 10px; }
     .ukazovatel span { display: block; width: 0; height: 100%; background: var(--vlado); border-radius: 99px; transition: width .3s; }
 
@@ -416,8 +432,8 @@
       .segment { flex: 1; margin-left: 0; }
       .segment button { flex: 1; padding: 6px 4px; }
       .logo { gap: 8px; min-width: 0; }
-      .logo-ikona { width: 28px; height: 28px; font-size: 15px; border-radius: 8px; flex-shrink: 0; }
-      h1 { font-size: 17px; white-space: nowrap; }
+      .logo-ikona { width: 40px; height: 40px; font-size: 21px; border-radius: 11px; flex-shrink: 0; }
+      h1 { font-size: 22px; white-space: nowrap; }
       #stav { font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 190px; }
       .ja .autor { font-size: 12px; padding: 3px 8px; }
       .odhlasit { padding: 4px 8px; font-size: 12px; }
@@ -702,6 +718,18 @@
     .kom-zmaz:hover { color: #c53030; filter: none; }
     .kom-text { font-size: 14px; line-height: 1.45; white-space: pre-wrap; overflow-wrap: anywhere; }
     .detail textarea.kom-pole { min-height: 56px; margin-bottom: 6px; }
+
+    /* ---------- FAREBNÁ HORNÁ LIŠTA (varianta B) ---------- */
+    header { background: var(--cervena); border-bottom: none; box-shadow: 0 2px 10px rgba(229,72,77,.35); }
+    header h1 { color: white; }
+    header #stav { color: rgba(255,255,255,.85); }
+    header .logo-ikona { background: white; color: var(--cervena); box-shadow: none; }
+    header .odhlasit { color: white; border-color: rgba(255,255,255,.6); }
+    header .odhlasit:hover { background: rgba(255,255,255,.15); }
+    header .lista, header .filter-obal { color: rgba(255,255,255,.9); }
+    header .segment { background: rgba(255,255,255,.2); }
+    header .segment button { color: white; }
+    header .segment button.aktivny { background: white; color: var(--cervena); }
   </style>
 </head>
 
@@ -784,9 +812,9 @@
     <div class="riadok-info">
       <div class="nalady">
         Ako sa cítiš?
-        <button onclick="odporuc('nizka')" title="Som unavený">😴<span class="slovo"> Unavený</span></button>
-        <button onclick="odporuc('stredna')" title="Som v pohode">🙂<span class="slovo"> V pohode</span></button>
-        <button onclick="odporuc('vysoka')" title="Som nabitý">💪<span class="slovo"> Nabitý</span></button>
+        <button data-nalada="nizka" onclick="odporuc('nizka')" title="Som unavený">😴<span class="slovo"> Unavený</span></button>
+        <button data-nalada="stredna" onclick="odporuc('stredna')" title="Som v pohode">🙂<span class="slovo"> V pohode</span></button>
+        <button data-nalada="vysoka" onclick="odporuc('vysoka')" title="Som nabitý">💪<span class="slovo"> Nabitý</span></button>
       </div>
       <div class="vpravo">
         <span id="novinky"></span>
@@ -818,7 +846,7 @@
   <script>
     // ---------- VERZIA ----------
     // Pri každej novej verzii zvýš toto číslo. Aplikácia tak spozná, že je k dispozícii novšia.
-    const VERZIA = "5";
+    const VERZIA = "6";
     const DATUM_VERZIE = "25. 11. 2026";   // kedy verzia išla von
 
     // ---------- NASTAVENIA ----------
@@ -926,6 +954,10 @@
       document.body.classList.remove("pridavam");
     }
     document.getElementById("fab-pridat").onclick = otvorPridavanie;
+    // pri otočení telefónu alebo zmene šírky okna prekresli (kvôli šípkam)
+    window.matchMedia("(max-width: 600px)").addEventListener("change", function () {
+      vykresli();
+    });
     document.getElementById("panel-zavriet").onclick = zavriPridavanie;
     document.getElementById("zavoj").onclick = zavriPridavanie;
     document.addEventListener("keydown", function (e) {
@@ -1184,7 +1216,8 @@
       presunDiv.className = "presun";
       if (poradie > 0) {
         let vlavo = document.createElement("button");
-        vlavo.textContent = "◀ " + stlpce[poradie - 1].nazov.split(" ").slice(1).join(" ");
+        // na mobile sú stĺpce pod sebou -> šípka hore, na počítači vedľa seba -> šípka vľavo
+        vlavo.textContent = (jeMobil() ? "▲ " : "◀ ") + stlpce[poradie - 1].nazov.split(" ").slice(1).join(" ");
         vlavo.onclick = function (e) {
           e.stopPropagation();
           presun(uloha.id, stlpce[poradie - 1].id);
@@ -1196,7 +1229,7 @@
       presunDiv.appendChild(medzera);
       if (poradie < stlpce.length - 1) {
         let vpravo = document.createElement("button");
-        vpravo.textContent = stlpce[poradie + 1].nazov.split(" ").slice(1).join(" ") + " ▶";
+        vpravo.textContent = stlpce[poradie + 1].nazov.split(" ").slice(1).join(" ") + (jeMobil() ? " ▼" : " ▶");
         vpravo.onclick = function (e) {
           e.stopPropagation();
           presun(uloha.id, stlpce[poradie + 1].id);
@@ -1940,27 +1973,83 @@
     }
 
     // ---------- ODPORÚČANIE PODĽA NÁLADY ----------
-    function odporuc(nalada) {
+    let aktivnaNalada = null;   // NOVÉ: ktorá nálada je práve zapnutá
+
+    function odporuc(nalada, jeIna) {
+      // NOVÉ: druhé ťuknutie na ten istý smajlík odporúčanie zruší
+      if (aktivnaNalada === nalada && !jeIna) {
+        zrusOdporucanie();
+        return;
+      }
+      aktivnaNalada = nalada;
+      zvyrazniNaladu();
+
       let vhodne = ulohy.filter(function (u) {
         return u.stav !== "hotovo" &&
                (u.energia || "stredna") === nalada &&
                (filter === "vsetci" || u.riesi === filter);
       });
 
-      let okienko = document.getElementById("odporucanie");
-      okienko.style.display = "block";
-
       if (vhodne.length === 0) {
         odporucanaId = null;
-        okienko.textContent = "Na túto náladu tu nemáte žiadnu úlohu. Možno je čas na prestávku ☕";
+        ukazOdporucanie("Na túto náladu tu nemáte žiadnu úlohu. Možno je čas na prestávku ☕");
         vykresli();
         return;
       }
 
-      let vybrana = vhodne[Math.floor(Math.random() * vhodne.length)];
+      // ak je možností viac, nevyber tú istú ako minule
+      let moznosti = vhodne.length > 1
+        ? vhodne.filter(function (u) { return u.id !== odporucanaId; })
+        : vhodne;
+      let vybrana = moznosti[Math.floor(Math.random() * moznosti.length)];
       odporucanaId = vybrana.id;
-      okienko.textContent = "Skús teraz: " + vybrana.text + "   (klikni znova pre inú možnosť)";
+      ukazOdporucanie("Skús teraz: " + vybrana.text, vhodne.length > 1);
       vykresli();
+
+      // NOVÉ: posuň stránku na odporúčanú kartu
+      let karta = document.querySelector(".karta.odporucana");
+      if (karta) karta.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+
+    // NOVÉ: žlté okienko s textom a tlačidlom Zrušiť
+    function ukazOdporucanie(text, mozeIna) {
+      let okienko = document.getElementById("odporucanie");
+      okienko.innerHTML = "";
+      let t = document.createElement("span");
+      t.textContent = text;
+      okienko.appendChild(t);
+
+      let tlacidla = document.createElement("span");
+      tlacidla.className = "odporucanie-tlacidla";
+      // ↻ Iná: ďalšia úloha pre tú istú náladu
+      if (mozeIna) {
+        let ina = document.createElement("button");
+        ina.className = "odporucanie-zrusit";
+        ina.textContent = "↻ Iná";
+        ina.onclick = function () { odporuc(aktivnaNalada, true); };
+        tlacidla.appendChild(ina);
+      }
+      let zrusit = document.createElement("button");
+      zrusit.className = "odporucanie-zrusit";
+      zrusit.textContent = "× Zrušiť";
+      zrusit.onclick = zrusOdporucanie;
+      tlacidla.appendChild(zrusit);
+      okienko.appendChild(tlacidla);
+      okienko.style.display = "flex";
+    }
+
+    function zrusOdporucanie() {
+      odporucanaId = null;
+      aktivnaNalada = null;
+      document.getElementById("odporucanie").style.display = "none";
+      zvyrazniNaladu();
+      vykresli();
+    }
+
+    function zvyrazniNaladu() {
+      for (let tlacidlo of document.querySelectorAll(".nalady button")) {
+        tlacidlo.classList.toggle("aktivna", tlacidlo.dataset.nalada === aktivnaNalada);
+      }
     }
 
     // ---------- PRIPOJENIE K DATABÁZE ----------
