@@ -2,7 +2,9 @@
 <html lang="sk">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- interactive-widget: pri otvorení klávesnice sa stránka zmenší, takže okná prilepené
+       k spodku (Nová karta) sú nad klávesnicou, nie pod ňou -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content">
   <title>Spoločné úlohy</title>
   <!-- Ikonka a nastavenia pre "Pridať na plochu" na telefóne -->
   <link rel="manifest" href="manifest.webmanifest">
@@ -508,6 +510,21 @@
     @media (max-width: 380px) {
       .ukazovatel { display: none; }
     }
+    @media (max-width: 600px) {
+      /* NOVÉ: vyhľadávanie na mobile hore (klávesnica ho neprekryje) */
+      #hladat-panel {
+        top: 10px;
+        bottom: auto;
+        animation: zhora .18s ease-out;
+      }
+      /* NOVÉ: okno Nová karta sa zmestí aj nad klávesnicu a stránka za ním sa nehýbe */
+      body.pridavam { overflow: hidden; }
+      .panel { max-height: 85dvh; overflow-y: auto; }
+    }
+    @keyframes zhora {
+      from { opacity: 0; transform: translate(-50%, -12px); }
+      to   { opacity: 1; transform: translate(-50%, 0); }
+    }
     @keyframes zdola {
       from { transform: translateY(100%); }
       to   { transform: translateY(0); }
@@ -723,7 +740,8 @@
     header { background: var(--cervena); border-bottom: none; box-shadow: 0 2px 10px rgba(229,72,77,.35); }
     header h1 { color: white; }
     header #stav { color: rgba(255,255,255,.85); }
-    header .logo-ikona { background: white; color: var(--cervena); box-shadow: none; }
+    /* rovnaká ikonka ako na ploche telefónu (červená s bielou fajkou), s bielym rámikom */
+    header .logo-ikona { background: var(--cervena); color: white; border: 1.5px solid rgba(255,255,255,.7); box-shadow: 0 3px 10px rgba(0,0,0,.2); }
     header .odhlasit { color: white; border-color: rgba(255,255,255,.6); }
     header .odhlasit:hover { background: rgba(255,255,255,.15); }
     header .lista, header .filter-obal { color: rgba(255,255,255,.9); }
@@ -743,7 +761,7 @@
   <!-- NOVÉ: úvodná obrazovka s prihlásením -->
   <div id="prihlasenie">
     <div class="prihlasenie-karta">
-      <div class="logo-ikona velka">✓</div>
+      <div class="logo-ikona velka"><svg viewBox="0 0 100 100" width="80%" height="80%" aria-hidden="true"><polyline points="24,52 41,68 74,33" fill="none" stroke="currentColor" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
       <h1>Spoločné úlohy</h1>
       <p class="podnadpis">Tabuľa úloh pre Mareka a Vlada</p>
       <button id="prihlasit" style="display:none">
@@ -756,7 +774,7 @@
   <div id="aplikacia" style="display:none">
   <header>
     <div class="logo">
-      <div class="logo-ikona">✓</div>
+      <div class="logo-ikona"><svg viewBox="0 0 100 100" width="80%" height="80%" aria-hidden="true"><polyline points="24,52 41,68 74,33" fill="none" stroke="currentColor" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
       <div>
         <h1>Spoločné úlohy</h1>
         <p id="stav">Načítavam tabuľu…</p>
@@ -786,7 +804,7 @@
         <span>Nová karta</span>
         <button id="panel-zavriet" class="hladat-zavriet" aria-label="Zavrieť">×</button>
       </div>
-      <input type="text" id="novaUloha" placeholder="Tu napíš úlohu">
+      <input type="text" id="novaUloha" placeholder="Tu napíš úlohu" autocomplete="off" autocorrect="on" spellcheck="true">
       <select id="energia" title="Náročnosť">
         <option value="" selected hidden>⚡ Náročnosť</option>
         <option value="nizka">😴 Ľahká</option>
@@ -846,7 +864,7 @@
   <script>
     // ---------- VERZIA ----------
     // Pri každej novej verzii zvýš toto číslo. Aplikácia tak spozná, že je k dispozícii novšia.
-    const VERZIA = "6";
+    const VERZIA = "7";
     const DATUM_VERZIE = "25. 11. 2026";   // kedy verzia išla von
 
     // ---------- NASTAVENIA ----------
@@ -1100,6 +1118,7 @@
       }
 
       kreslim = false;
+      vypniAutomatickeDoplnanie(tabula);
       // NOVÉ: počet nájdených kariet vo vyhľadávaní
       document.getElementById("hladat-pocet").textContent =
         hladat ? "nájdené: " + viditelne.length : "";
@@ -2189,6 +2208,15 @@
     document.addEventListener("visibilitychange", function () {
       if (document.visibilityState === "visible") skontrolujVerziu();
     });
+
+    // NOVÉ: Chrome na mobile ponúka nad klávesnicou heslá, karty a adresy (🔑 💳 📍).
+    // V našich poliach to nepotrebujeme, tak mu to povieme.
+    function vypniAutomatickeDoplnanie(kde) {
+      for (let pole of kde.querySelectorAll("input[type=text], input[type=search], textarea")) {
+        pole.setAttribute("autocomplete", "off");
+      }
+    }
+    vypniAutomatickeDoplnanie(document);
 
     // Toto zavolá časť FIREBASE, keď sa niekto úspešne prihlási
     window.spustiPoPrihlaseni = function (meno) {
