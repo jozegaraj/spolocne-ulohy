@@ -380,6 +380,70 @@
     .detail .tlacidla { margin-top: 8px; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
     .detail .info { color: var(--seda-text); font-size: 12px; }
 
+    /* NOVÉ: plávajúce vyhľadávanie */
+    .fab {
+      position: fixed;
+      right: 22px;
+      bottom: 22px;
+      width: 56px;
+      height: 56px;
+      padding: 0;
+      border-radius: 50%;
+      font-size: 22px;
+      background: var(--cervena);
+      box-shadow: 0 6px 18px rgba(229,72,77,.4), 0 2px 4px rgba(0,0,0,.15);
+      z-index: 50;
+      transition: transform .15s, box-shadow .15s;
+    }
+    .fab:hover { transform: scale(1.06); filter: none; }
+    .fab[hidden], .hladat-panel[hidden] { display: none; }
+    .hladat-panel {
+      position: fixed;
+      left: 50%;
+      bottom: 22px;
+      transform: translateX(-50%);
+      width: min(560px, calc(100% - 32px));
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--biela);
+      border: 2px solid var(--cervena);
+      border-radius: 999px;
+      padding: 6px 6px 6px 16px;
+      box-shadow: 0 10px 30px rgba(16,24,40,.2);
+      z-index: 50;
+      animation: vysun .18s ease-out;
+    }
+    @keyframes vysun {
+      from { opacity: 0; transform: translate(-50%, 12px); }
+      to   { opacity: 1; transform: translate(-50%, 0); }
+    }
+    .hladat-panel .lupa { font-size: 16px; }
+    .hladat-panel input {
+      flex: 1;
+      min-width: 0;
+      border: none;
+      outline: none;
+      font-size: 16px;
+      padding: 8px 0;
+      background: none;
+    }
+    .hladat-panel input::-webkit-search-cancel-button { display: none; }
+    #hladat-pocet { font-size: 12px; color: var(--seda-text); white-space: nowrap; }
+    .hladat-zavriet {
+      width: 36px;
+      height: 36px;
+      padding: 0;
+      border-radius: 50%;
+      font-size: 20px;
+      font-weight: 400;
+      background: var(--pozadie);
+      color: var(--tmava);
+    }
+    .hladat-zavriet:hover { background: #fee2e2; color: #c53030; filter: none; }
+    /* aby posledná karta nebola schovaná pod tlačidlom */
+    main { padding-bottom: 100px; }
+
     /* NOVÉ: spodok rozkliknutej karty */
     .spodok-karty {
       margin-top: 16px;
@@ -502,10 +566,6 @@
     </div>
 
     <div class="lista">
-      <!-- NOVÉ: vyhľadávanie -->
-      <span class="hladanie">
-        <input type="search" id="hladat" placeholder="🔍 Hľadať karty…" autocomplete="off">
-      </span>
       <!-- Kto je prihlásený (nastaví sa automaticky podľa Google účtu) -->
       <span class="ja">
         <span id="meno" class="autor"></span>
@@ -558,6 +618,15 @@
     <!-- Tabuľa s tromi stĺpcami. Karty doň kreslí JavaScript. -->
     <div class="tabula" id="tabula"></div>
   </main>
+
+  <!-- NOVÉ: plávajúce tlačidlo vyhľadávania a vysúvacie pole -->
+  <button id="fab-hladat" class="fab" title="Hľadať (klávesa /)" aria-label="Hľadať">🔍</button>
+  <div id="hladat-panel" class="hladat-panel" hidden>
+    <span class="lupa">🔍</span>
+    <input type="search" id="hladat" placeholder="Hľadať v kartách, popisoch, komentároch…" autocomplete="off">
+    <span id="hladat-pocet"></span>
+    <button id="hladat-zavriet" class="hladat-zavriet" title="Zavrieť (Esc)" aria-label="Zavrieť">×</button>
+  </div>
   </div>
 
   <script>
@@ -618,10 +687,36 @@
       vykresli();
     });
     poleHladat.addEventListener("keydown", function (e) {
-      if (e.key === "Escape") {
-        poleHladat.value = "";
-        hladat = "";
-        vykresli();
+      if (e.key === "Escape") zavriHladanie();
+    });
+
+    // NOVÉ: otváranie a zatváranie vysúvacieho vyhľadávania
+    let fab = document.getElementById("fab-hladat");
+    let panelHladat = document.getElementById("hladat-panel");
+
+    function otvorHladanie() {
+      panelHladat.hidden = false;
+      fab.hidden = true;
+      poleHladat.focus();
+    }
+
+    function zavriHladanie() {
+      poleHladat.value = "";
+      hladat = "";
+      panelHladat.hidden = true;
+      fab.hidden = false;
+      vykresli();
+    }
+
+    fab.onclick = otvorHladanie;
+    document.getElementById("hladat-zavriet").onclick = zavriHladanie;
+
+    // Klávesa "/" otvorí vyhľadávanie (ak práve nepíšeš do iného poľa)
+    document.addEventListener("keydown", function (e) {
+      let tag = document.activeElement ? document.activeElement.tagName : "";
+      if (e.key === "/" && tag !== "INPUT" && tag !== "TEXTAREA" && tag !== "SELECT") {
+        e.preventDefault();
+        otvorHladanie();
       }
     });
 
@@ -723,6 +818,9 @@
       }
 
       kreslim = false;
+      // NOVÉ: počet nájdených kariet vo vyhľadávaní
+      document.getElementById("hladat-pocet").textContent =
+        hladat ? "nájdené: " + viditelne.length : "";
       aktualizujPocitadlo();
       aktualizujNovinky();
     }
