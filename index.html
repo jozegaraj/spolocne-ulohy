@@ -380,6 +380,28 @@
     .detail .tlacidla { margin-top: 8px; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
     .detail .info { color: var(--seda-text); font-size: 12px; }
 
+    /* NOVÉ: spodok rozkliknutej karty */
+    .spodok-karty {
+      margin-top: 16px;
+      padding-top: 12px;
+      border-top: 1px solid var(--okraj);
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .zmazat-kartu {
+      margin-left: auto;
+      padding: 6px 10px;
+      font-size: 13px;
+      font-weight: 500;
+      background: none;
+      color: var(--seda-text);
+    }
+    .zmazat-kartu:hover { color: #c53030; background: #fee2e2; filter: none; }
+    .otazka-mazanie { margin-left: auto; font-size: 13px; color: #b91c1c; font-weight: 500; }
+    .nebezpecne { background: #c53030; }
+
     /* NOVÉ: novinky */
     .karta.nova { border-color: rgba(229,72,77,.35); }
     .bodka {
@@ -509,6 +531,13 @@
         <option value="vysoka">💪 Náročná</option>
       </select>
       <input type="date" id="termin" title="Termín (nepovinné)">
+      <!-- NOVÉ: opakovanie -->
+      <select id="opakovanie" title="Opakovanie">
+        <option value="">🔁 Neopakovať</option>
+        <option value="denne">🔁 Denne</option>
+        <option value="tyzdenne">🔁 Týždenne</option>
+        <option value="mesacne">🔁 Mesačne</option>
+      </select>
       <button id="pridat" onclick="pridajUlohu()">+ Pridať</button>
     </div>
 
@@ -535,6 +564,9 @@
     // ---------- NASTAVENIA ----------
     let ikonky = { nizka: "😴", stredna: "🙂", vysoka: "💪" };
 
+    // NOVÉ: možnosti opakovania (hodnota v databáze -> text na stránke)
+    let opakovania = { denne: "denne", tyzdenne: "týždenne", mesacne: "mesačne" };
+
     // NOVÉ: stĺpce tabule. "id" sa ukladá do databázy, "nazov" vidíš na stránke.
     let stlpce = [
       { id: "urobit", nazov: "📋 Na urobenie" },
@@ -555,6 +587,8 @@
     // NOVÉ: rozpísané (ešte neuložené) nové názvy kariet
     let rozpisaneNazvy = {};
     let kreslim = false;
+    // NOVÉ: ktorá karta sa práve pýta "Naozaj zmazať?"
+    let potvrdzujeMazanie = null;
     // NOVÉ: kroky kontrolných zoznamov všetkých kariet
     let kroky = [];
     let noveKroky = {};          // rozpísaný nový krok pre každú kartu
@@ -728,15 +762,6 @@
       nazov.textContent = (ikonky[uloha.energia] || "🙂") + " " + uloha.text;
       hore.appendChild(nazov);
 
-      let zmazat = document.createElement("button");
-      zmazat.textContent = "×";
-      zmazat.className = "zmazat";
-      zmazat.title = "Zmazať kartu";
-      zmazat.onclick = function (e) {
-        e.stopPropagation();
-        zmazUlohu(uloha);
-      };
-      hore.appendChild(zmazat);
       karta.appendChild(hore);
 
       // --- Štítky: kto rieši, termín, popis ---
@@ -775,6 +800,15 @@
         ikonaPopisu.title = "Karta má popis";
         stitky.appendChild(ikonaPopisu);
       }
+      // NOVÉ: štítok opakovania
+      if (uloha.opakovanie) {
+        let opak = document.createElement("span");
+        opak.className = "termin";
+        opak.textContent = "🔁 " + opakovania[uloha.opakovanie];
+        opak.title = "Opakujúca sa úloha";
+        stitky.appendChild(opak);
+      }
+
       // NOVÉ: postup kontrolného zoznamu, napr. ☑ 2/5
       let mojeKroky = krokyKarty(uloha.id);
       if (mojeKroky.length > 0) {
@@ -898,6 +932,32 @@
       }
       detail.appendChild(terminRiadok);
 
+      // NOVÉ: opakovanie
+      let opakRiadok = document.createElement("div");
+      opakRiadok.className = "pole-riadok";
+      opakRiadok.appendChild(stitok("Opakovať"));
+      let opakPole = document.createElement("select");
+      for (let moznost of [["", "nie"], ["denne", "každý deň"], ["tyzdenne", "každý týždeň"], ["mesacne", "každý mesiac"]]) {
+        let o = document.createElement("option");
+        o.value = moznost[0];
+        o.textContent = moznost[1];
+        opakPole.appendChild(o);
+      }
+      opakPole.value = uloha.opakovanie;
+      opakPole.onchange = function () {
+        zmenUlohu(uloha, { opakovanie: opakPole.value });
+      };
+      opakRiadok.appendChild(opakPole);
+      if (uloha.opakovanie) {
+        let infoOpak = document.createElement("span");
+        infoOpak.className = "info";
+        infoOpak.textContent = uloha.nasledovnik
+          ? "(ďalšia karta už je vytvorená)"
+          : "(po presune do Hotovo sa vytvorí ďalšia)";
+        opakRiadok.appendChild(infoOpak);
+      }
+      detail.appendChild(opakRiadok);
+
       // NOVÉ: kto kartu rieši
       let riesiRiadok = document.createElement("div");
       riesiRiadok.className = "pole-riadok";
@@ -967,6 +1027,55 @@
 
       // Komentáre
       detail.appendChild(vytvorKomentare(uloha));
+
+      // NOVÉ: spodná lišta: Zavrieť a Zmazať (s potvrdením)
+      let spodok = document.createElement("div");
+      spodok.className = "spodok-karty";
+
+      let zavriet = document.createElement("button");
+      zavriet.className = "svetle male";
+      zavriet.textContent = "▲ Zavrieť";
+      zavriet.onclick = function () {
+        rozbalene.delete(uloha.id);
+        potvrdzujeMazanie = null;
+        vykresli();
+      };
+      spodok.appendChild(zavriet);
+
+      if (potvrdzujeMazanie === uloha.id) {
+        let otazka = document.createElement("span");
+        otazka.className = "otazka-mazanie";
+        otazka.textContent = "Naozaj zmazať kartu aj s komentármi?";
+        spodok.appendChild(otazka);
+
+        let ano = document.createElement("button");
+        ano.className = "male nebezpecne";
+        ano.textContent = "Áno, zmazať";
+        ano.onclick = function () {
+          potvrdzujeMazanie = null;
+          zmazUlohu(uloha);
+        };
+        spodok.appendChild(ano);
+
+        let nie = document.createElement("button");
+        nie.className = "svetle male";
+        nie.textContent = "Nie";
+        nie.onclick = function () {
+          potvrdzujeMazanie = null;
+          vykresli();
+        };
+        spodok.appendChild(nie);
+      } else {
+        let zmazatKartu = document.createElement("button");
+        zmazatKartu.className = "zmazat-kartu";
+        zmazatKartu.textContent = "🗑 Zmazať kartu";
+        zmazatKartu.onclick = function () {
+          potvrdzujeMazanie = uloha.id;
+          vykresli();
+        };
+        spodok.appendChild(zmazatKartu);
+      }
+      detail.appendChild(spodok);
 
       return detail;
     }
@@ -1322,11 +1431,13 @@
           autor: vyberKto.value,
           riesi: "",                    // NOVÉ: na začiatku ju nemá nikto na starosti
           termin: document.getElementById("termin").value,
+          opakovanie: document.getElementById("opakovanie").value,   // NOVÉ
           vytvorene: Date.now(),
           zmenene: Date.now(),
           zmenil: vyberKto.value
         });
         document.getElementById("termin").value = "";
+        document.getElementById("opakovanie").value = "";
       } catch (chyba) {
         ukazChybu(chyba);
       }
@@ -1352,7 +1463,84 @@
       if (novyStav === "robi" && !uloha.riesi) {
         zmeny.riesi = vyberKto.value;
       }
-      await zmenUlohu(uloha, zmeny);
+      let ok = await zmenUlohu(uloha, zmeny);
+
+      // NOVÉ: opakujúca sa úloha -> po dokončení vytvor ďalšiu
+      if (ok && novyStav === "hotovo" && uloha.opakovanie && !uloha.nasledovnik) {
+        await vytvorDalsiu(uloha);
+      }
+    }
+
+    // NOVÉ: vypočíta ďalší termín. Ak by bol v minulosti, posúva ho ďalej,
+    // kým nie je dnes alebo neskôr.
+    function dalsiTermin(termin, opakovanie) {
+      let dnes = new Date();
+      dnes.setHours(0, 0, 0, 0);
+      let datum;
+      if (termin) {
+        let c = termin.split("-");
+        datum = new Date(Number(c[0]), Number(c[1]) - 1, Number(c[2]));
+      } else {
+        datum = new Date(dnes);
+      }
+      let povodnyDen = datum.getDate();
+
+      function posun() {
+        if (opakovanie === "denne") {
+          datum.setDate(datum.getDate() + 1);
+        } else if (opakovanie === "tyzdenne") {
+          datum.setDate(datum.getDate() + 7);
+        } else {
+          // mesačne: 31. januára -> 28./29. februára (nie 3. marca)
+          let rok = datum.getFullYear();
+          let mesiac = datum.getMonth() + 1;
+          let poslednyDen = new Date(rok, mesiac + 1, 0).getDate();
+          datum = new Date(rok, mesiac, Math.min(povodnyDen, poslednyDen));
+        }
+      }
+
+      posun();
+      while (datum < dnes) posun();
+
+      let m = String(datum.getMonth() + 1).padStart(2, "0");
+      let d = String(datum.getDate()).padStart(2, "0");
+      return datum.getFullYear() + "-" + m + "-" + d;
+    }
+
+    // NOVÉ: vytvorí kópiu opakujúcej sa karty s novým termínom
+    async function vytvorDalsiu(uloha) {
+      try {
+        let nova = await db.collection("ulohy").add({
+          text: uloha.text,
+          popis: uloha.popis,
+          stav: "urobit",
+          splnena: false,
+          energia: uloha.energia || "stredna",
+          autor: uloha.autor,
+          riesi: uloha.riesi,
+          termin: dalsiTermin(uloha.termin, uloha.opakovanie),
+          opakovanie: uloha.opakovanie,
+          vytvorene: Date.now(),
+          zmenene: Date.now(),
+          zmenil: vyberKto.value
+        });
+
+        // skopíruj kroky kontrolného zoznamu (neodškrtnuté)
+        let poradie = Date.now();
+        for (let krok of krokyKarty(uloha.id)) {
+          await db.collection("kroky").add({
+            ulohaId: nova.id,
+            text: krok.text,
+            hotovo: false,
+            cas: poradie++
+          });
+        }
+
+        // zapamätaj si, že ďalšia už existuje (aby nevznikla dvakrát)
+        await db.collection("ulohy").doc(uloha.id).update({ nasledovnik: nova.id });
+      } catch (chyba) {
+        ukazChybu(chyba);
+      }
     }
 
     // Jedna spoločná funkcia na každú zmenu karty (termín, rieši, popis, stĺpec)
@@ -1460,6 +1648,8 @@
               riesi: riesi,
               termin: /^\d{4}-\d{2}-\d{2}$/.test(String(data.termin || "")) ? String(data.termin) : "",
               zmenene: Number(data.zmenene) || 0,
+              opakovanie: (data.opakovanie in opakovania) ? data.opakovanie : "",
+              nasledovnik: data.nasledovnik ? String(data.nasledovnik) : "",
               zmenil: (data.zmenil === "Marek" || data.zmenil === "Vlado") ? data.zmenil : ""
             };
           });
