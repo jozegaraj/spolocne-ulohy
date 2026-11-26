@@ -864,8 +864,8 @@
   <script>
     // ---------- VERZIA ----------
     // Pri každej novej verzii zvýš toto číslo. Aplikácia tak spozná, že je k dispozícii novšia.
-    const VERZIA = "7";
-    const DATUM_VERZIE = "25. 11. 2026";   // kedy verzia išla von
+    const VERZIA = "8";
+    const DATUM_VERZIE = "26. 11. 2026";   // kedy verzia išla von
 
     // ---------- NASTAVENIA ----------
     let ikonky = { nizka: "😴", stredna: "🙂", vysoka: "💪" };
@@ -2234,7 +2234,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import {
-      getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect,
+      getAuth, GoogleAuthProvider, signInWithPopup,
       onAuthStateChanged, signOut
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
     import {
@@ -2274,11 +2274,19 @@
       try {
         await signInWithPopup(auth, provider);
       } catch (e) {
-        // Ak prehliadač zablokuje vyskakovacie okno, skúsime presmerovanie
+        // NOVÉ: prihlásenie cez presmerovanie na stránkach mimo Firebase
+        // v nových prehliadačoch nefunguje, preto ho nepoužívame.
+        // Namiesto toho povieme, čo robiť.
+        if (e.code === "auth/popup-closed-by-user" || e.code === "auth/cancelled-popup-request") {
+          return;   // používateľ okno sám zavrel, netreba nič hlásiť
+        }
+        sprava.className = "chyba";
         if (e.code === "auth/popup-blocked" || e.code === "auth/operation-not-supported-in-this-environment") {
-          await signInWithRedirect(auth, provider);
-        } else if (e.code !== "auth/popup-closed-by-user" && e.code !== "auth/cancelled-popup-request") {
-          sprava.className = "chyba";
+          sprava.textContent = "Prehliadač nedovolil otvoriť prihlasovacie okno Googlu. " +
+            "Otvor túto stránku v Chrome (nie z odkazu v inej aplikácii) a skús to znova. (" + e.code + ")";
+        } else if (e.code === "auth/network-request-failed") {
+          sprava.textContent = "Nepodarilo sa spojiť so serverom. Skontroluj internet a skús to znova.";
+        } else {
           sprava.textContent = "Prihlásenie sa nepodarilo (" + e.code + ").";
         }
       }
